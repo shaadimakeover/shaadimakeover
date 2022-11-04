@@ -85,7 +85,7 @@ Run the below commend to generate swagger api doc
 - php artisan l5-swagger:generate
 
 Visit this link to open swagger api documentation
-- https://laravel-9-setup.dedicateddevelopers.us/api/documentation
+- https://shaadimakeover.com/api/documentation
 
 
 Theme change admin panel
