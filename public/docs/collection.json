@@ -1,0 +1,310 @@
+{
+    "variable": [
+        {
+            "id": "baseUrl",
+            "key": "baseUrl",
+            "type": "string",
+            "name": "string",
+            "value": "http:\/\/localhost"
+        }
+    ],
+    "info": {
+        "name": "Laravel",
+        "_postman_id": "c8a20f38-d4a2-4620-b7d6-b51c6daf1bae",
+        "description": "",
+        "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
+    },
+    "item": [
+        {
+            "name": "Auth management",
+            "description": "\nAPIs for managing authentication",
+            "item": [
+                {
+                    "name": "api\/register",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/register",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/register"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"first_name\":\"John\",\"last_name\":\"Doe\",\"email\":\"John@gmail.com\",\"phone\":\"1122334455\",\"password\":\"eos\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n      \"status\": true,\n      \"message\": \"Success! registration completed\",\n      \"data\": {\n          \"first_name\": \"john\",\n          \"last_name\": \"doe\",\n          \"email\": \"john@gmail.com\",\n          \"phone\": \"1122334455\",\n          \"updated_at\": \"2021-02-18T12:14:01.000000Z\",\n          \"created_at\": \"2021-02-18T12:14:01.000000Z\",\n          \"id\": 56,\n          \"full_name\": \"john doe\",\n          \"role_name\": \"USER\",\n          \"roles\": [\n              {\n                  \"id\": 2,\n                  \"name\": \"USER\",\n                  \"guard_name\": \"web\",\n                  \"created_at\": \"2021-02-17T06:58:17.000000Z\",\n                  \"updated_at\": \"2021-02-17T06:58:17.000000Z\",\n                  \"pivot\": {\n                      \"model_id\": 56,\n                      \"role_id\": 2,\n                      \"model_type\": \"App\\\\Models\\\\User\"\n                  }\n              }\n          ]\n      }\n  }",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "api\/login",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/login",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/login"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"email\":\"user@user.com\",\"password\":\"12345678\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n      \"status\": true,\n      \"token\": \"6|Imv8VDsE27b1sRclxv91emCSIbLpxLmfvK3wFsAa\",\n      \"data\": {\n          \"id\": 55,\n          \"first_name\": \"Abhik\",\n          \"last_name\": \"paul\",\n          \"email\": \"abhik421@gmail.com\",\n          \"phone\": \"6655443321\",\n          \"email_verified_at\": null,\n          \"current_team_id\": null,\n          \"profile_photo_path\": null,\n          \"active\": 0,\n          \"created_at\": \"2021-02-17T15:13:27.000000Z\",\n          \"updated_at\": \"2021-02-17T15:13:27.000000Z\",\n          \"full_name\": \"Abhik paul\",\n          \"role_name\": \"USER\"\n      }\n  }",
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Product management",
+            "description": "\nAPIs for managing products",
+            "item": [
+                {
+                    "name": "api\/products",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": ""
+                    },
+                    "response": [
+                        {
+                            "header": [],
+                            "code": 200,
+                            "body": "{\n      \"status\": true,\n      \"data\": [\n          {\n              \"id\": 1,\n              \"title\": \"new task\",\n              \"description\": \"demo description\",\n              \"user_id\": 56,\n              \"created_at\": \"2021-02-17T15:24:36.000000Z\",\n              \"updated_at\": \"2021-02-17T15:24:36.000000Z\",\n              \"user\": {\n                  \"id\": 56,\n                  \"first_name\": \"john\",\n                  \"last_name\": \"doe\",\n                  \"email\": \"john@gmail.com\",\n                  \"phone\": \"1122334455\",\n                  \"email_verified_at\": null,\n                  \"current_team_id\": null,\n                  \"profile_photo_path\": null,\n                  \"active\": 0,\n                  \"created_at\": \"2021-02-18T12:14:01.000000Z\",\n                  \"updated_at\": \"2021-02-18T12:14:01.000000Z\",\n                  \"full_name\": \"john doe\",\n                  \"role_name\": \"USER\"\n              }\n          }\n      ]\n  }",
+                            "name": ""
+                        },
+                        {
+                            "header": [],
+                            "code": 401,
+                            "body": "{\n  \"message\": \"Unauthenticated.\"\n}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Store a newly created resource in storage.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"a\",\"detail\":\"reiciendis\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Display the specified resource.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "8",
+                                    "description": "The ID of the product."
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": [
+                        {
+                            "header": [
+                                {
+                                    "key": "cache-control",
+                                    "value": "no-cache, private"
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application\/json"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                }
+                            ],
+                            "code": 401,
+                            "body": "{\"message\":\"Unauthenticated.\"}",
+                            "name": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "Update the specified resource in storage.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "11",
+                                    "description": "The ID of the product."
+                                }
+                            ]
+                        },
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\"name\":\"suscipit\",\"detail\":\"eum\"}"
+                        },
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Remove the specified resource from storage.",
+                    "request": {
+                        "url": {
+                            "host": "{{baseUrl}}",
+                            "path": "api\/products\/:id",
+                            "query": [],
+                            "raw": "{{baseUrl}}\/api\/products\/:id",
+                            "variable": [
+                                {
+                                    "id": "id",
+                                    "key": "id",
+                                    "value": "5",
+                                    "description": "The ID of the product."
+                                }
+                            ]
+                        },
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application\/json"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application\/json"
+                            }
+                        ],
+                        "body": null,
+                        "description": "",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "noauth"
+    }
+}

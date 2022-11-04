@@ -1,0 +1,459 @@
+openapi: 3.0.3
+info:
+  title: Laravel
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost'
+paths:
+  /api/register:
+    post:
+      summary: ''
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: true
+                  message: 'Success! registration completed'
+                  data:
+                    first_name: john
+                    last_name: doe
+                    email: john@gmail.com
+                    phone: '1122334455'
+                    updated_at: '2021-02-18T12:14:01.000000Z'
+                    created_at: '2021-02-18T12:14:01.000000Z'
+                    id: 56
+                    full_name: 'john doe'
+                    role_name: USER
+                    roles:
+                      -
+                        id: 2
+                        name: USER
+                        guard_name: web
+                        created_at: '2021-02-17T06:58:17.000000Z'
+                        updated_at: '2021-02-17T06:58:17.000000Z'
+                        pivot:
+                          model_id: 56
+                          role_id: 2
+                          model_type: App\Models\User
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Success! registration completed'
+                  data:
+                    type: object
+                    example:
+                      first_name: john
+                      last_name: doe
+                      email: john@gmail.com
+                      phone: '1122334455'
+                      updated_at: '2021-02-18T12:14:01.000000Z'
+                      created_at: '2021-02-18T12:14:01.000000Z'
+                      id: 56
+                      full_name: 'john doe'
+                      role_name: USER
+                      roles:
+                        -
+                          id: 2
+                          name: USER
+                          guard_name: web
+                          created_at: '2021-02-17T06:58:17.000000Z'
+                          updated_at: '2021-02-17T06:58:17.000000Z'
+                          pivot:
+                            model_id: 56
+                            role_id: 2
+                            model_type: App\Models\User
+      tags:
+        - 'Auth management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  description: ''
+                  example: John
+                last_name:
+                  type: string
+                  description: ''
+                  example: Doe
+                email:
+                  type: string
+                  description: ''
+                  example: John@gmail.com
+                phone:
+                  type: string
+                  description: ''
+                  example: '1122334455'
+                password:
+                  type: string
+                  description: ''
+                  example: eos
+              required:
+                - first_name
+                - last_name
+                - email
+                - phone
+                - password
+      security: []
+  /api/login:
+    post:
+      summary: ''
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: true
+                  token: 6|Imv8VDsE27b1sRclxv91emCSIbLpxLmfvK3wFsAa
+                  data:
+                    id: 55
+                    first_name: Abhik
+                    last_name: paul
+                    email: abhik421@gmail.com
+                    phone: '6655443321'
+                    email_verified_at: null
+                    current_team_id: null
+                    profile_photo_path: null
+                    active: 0
+                    created_at: '2021-02-17T15:13:27.000000Z'
+                    updated_at: '2021-02-17T15:13:27.000000Z'
+                    full_name: 'Abhik paul'
+                    role_name: USER
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    example: 6|Imv8VDsE27b1sRclxv91emCSIbLpxLmfvK3wFsAa
+                  data:
+                    type: object
+                    example:
+                      id: 55
+                      first_name: Abhik
+                      last_name: paul
+                      email: abhik421@gmail.com
+                      phone: '6655443321'
+                      email_verified_at: null
+                      current_team_id: null
+                      profile_photo_path: null
+                      active: 0
+                      created_at: '2021-02-17T15:13:27.000000Z'
+                      updated_at: '2021-02-17T15:13:27.000000Z'
+                      full_name: 'Abhik paul'
+                      role_name: USER
+      tags:
+        - 'Auth management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: ''
+                  example: user@user.com
+                password:
+                  type: string
+                  description: ''
+                  example: '12345678'
+              required:
+                - email
+                - password
+      security: []
+  /api/products:
+    get:
+      summary: ''
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: true
+                  data:
+                    -
+                      id: 1
+                      title: 'new task'
+                      description: 'demo description'
+                      user_id: 56
+                      created_at: '2021-02-17T15:24:36.000000Z'
+                      updated_at: '2021-02-17T15:24:36.000000Z'
+                      user:
+                        id: 56
+                        first_name: john
+                        last_name: doe
+                        email: john@gmail.com
+                        phone: '1122334455'
+                        email_verified_at: null
+                        current_team_id: null
+                        profile_photo_path: null
+                        active: 0
+                        created_at: '2021-02-18T12:14:01.000000Z'
+                        updated_at: '2021-02-18T12:14:01.000000Z'
+                        full_name: 'john doe'
+                        role_name: USER
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        title: 'new task'
+                        description: 'demo description'
+                        user_id: 56
+                        created_at: '2021-02-17T15:24:36.000000Z'
+                        updated_at: '2021-02-17T15:24:36.000000Z'
+                        user:
+                          id: 56
+                          first_name: john
+                          last_name: doe
+                          email: john@gmail.com
+                          phone: '1122334455'
+                          email_verified_at: null
+                          current_team_id: null
+                          profile_photo_path: null
+                          active: 0
+                          created_at: '2021-02-18T12:14:01.000000Z'
+                          updated_at: '2021-02-18T12:14:01.000000Z'
+                          full_name: 'john doe'
+                          role_name: USER
+                    items:
+                      type: object
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Product management'
+    post:
+      summary: 'Store a newly created resource in storage.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - 'Product management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: a
+                detail:
+                  type: string
+                  description: ''
+                  example: reiciendis
+              required:
+                - name
+                - detail
+      security: []
+  '/api/products/{id}':
+    get:
+      summary: 'Display the specified resource.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Product management'
+      security: []
+    put:
+      summary: 'Update the specified resource in storage.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - 'Product management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ''
+                  example: suscipit
+                detail:
+                  type: string
+                  description: ''
+                  example: eum
+              required:
+                - name
+                - detail
+      security: []
+    delete:
+      summary: 'Remove the specified resource from storage.'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses: {  }
+      tags:
+        - 'Product management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the product.'
+        example: 8
+        required: true
+        schema:
+          type: integer
+tags:
+  -
+    name: 'Auth management'
+    description: "\nAPIs for managing authentication"
+  -
+    name: 'Product management'
+    description: "\nAPIs for managing products"

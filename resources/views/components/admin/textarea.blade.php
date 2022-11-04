@@ -1,0 +1,1 @@
+<textarea {!! $attributes->merge(['class' => 'form-control border-gray-200']) !!}></textarea>
