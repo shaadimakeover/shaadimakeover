@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\HasProfilePhoto;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,7 +46,8 @@ class User extends Authenticatable implements HasMedia
         'password',
         'active',
         'address',
-        'is_terms_conditions'
+        'is_terms_conditions',
+        'otp'
     ];
 
     /**
@@ -74,21 +76,34 @@ class User extends Authenticatable implements HasMedia
         $this->attributes['password'] = bcrypt($password);
     }
 
-    public function getRoleNameAttribute()
+    public function roleName(): Attribute
     {
-        if ($this->roles()->exists())
-            return $this->roles()->first()->name;
-        else
-            return 0;
+        if ($this->roles()->exists()){
+           $role =  $this->roles()->first()->name;
+        }
+        else{
+            $role = 0;
+        }
+        return Attribute::make(
+            get: fn ($value)=> $role
+        );
+        
     }
-    public function getFullNameAttribute()
+    /**
+     * Interact with the user's first name.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function fullName(): Attribute
     {
-        return "{$this->first_name} {$this->last_name}";
+        return Attribute::make(
+            get: fn ($value) => $this->first_name.' '.$this->last_name,
+        );
     }
 
-    public function task()
+    public function providers()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Provider::class);
     }
 
     public function product()

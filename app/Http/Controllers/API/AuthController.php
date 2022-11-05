@@ -48,11 +48,8 @@ class AuthController extends BaseController
     {
         $validator  =   Validator::make($request->all(), [
             "first_name"  =>  "required",
-            "last_name"  =>  "required",
             "email"  =>  "required|email|unique:users",
-            "phone"  =>  "required|unique:users",
-            "password"  =>  "required",
-            "confirm_password"  =>  "required|same:password",
+            "address"  =>  "required",
         ]);
 
         if ($validator->fails()) {
@@ -90,9 +87,8 @@ class AuthController extends BaseController
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"email", "password"},
-     *               @OA\Property(property="email", type="email"),
-     *               @OA\Property(property="password", type="password")
+     *               required={"phone"},
+     *               @OA\Property(property="phone", type="number")
      *            ),
      *        ),
      *    ),
@@ -114,8 +110,7 @@ class AuthController extends BaseController
     {
 
         $validator = Validator::make($request->all(), [
-            "email" =>  "required|email",
-            "password" =>  "required",
+            "phone" =>  "required",
         ]);
 
         if ($validator->fails()) {
@@ -124,10 +119,10 @@ class AuthController extends BaseController
 
         try {
 
-            $user = User::where("email", $request->email)->first();
+            $user = User::where("phone", $request->phone)->first();
 
             if (is_null($user)) {
-                return $this->sendError('Failed! email not found', [], 404);
+                return $this->sendError('Failed! mobile number not valid', [], 404);
             }
 
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
@@ -187,4 +182,147 @@ class AuthController extends BaseController
             return $this->sendError('Server Error!', [], 500);
         }
     }
+
+    /**
+     * @OA\Post(
+     * path="/api/social-login",
+     * operationId="Social Login",
+     * tags={"Auth Management"},
+     * summary="User Social Login",
+     * description="User Social Login here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"name","email","provider", "provider_id", "device_type","device_token"},
+     *               @OA\Property(property="name", type="text"),
+     *               @OA\Property(property="provider", type="text", enum={"google","facebook","instagram"}),
+     *               @OA\Property(property="email", type="text"),
+     *               @OA\Property(property="provider_id", type="text"),
+     *               @OA\Property(property="device_type", type="text", enum={"ios","android"}),
+     *               @OA\Property(property="device_token", type="text")
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="User social login successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Social login failed!"),
+     * )
+     */
+    public function socialLogin(Request $request)
+    {
+        $validator  =   Validator::make($request->all(), [
+            "email"  =>  "required",
+            "name"  =>  "required",
+            "provider"  =>  "required|in:google,facebook,instagram",
+            "provider_id"  =>  "required",
+            "device_type"  =>  "required|in:ios,android",
+            "device_token"  =>  "required",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        DB::beginTransaction();
+        try {
+            $name = explode(" ",$request->name);
+            $userCreated = User::firstOrCreate(
+                [
+                    'email' => $request->email
+                ],
+                [
+                    'email_verified_at' => now(),
+                    'first_name' => $name[0],
+                    'last_name' => isset($name[1]) ? $name[1]:null,
+                ]
+            );
+            $userCreated->providers()->updateOrCreate(
+                [
+                    'provider' => $request->provider,
+                    'provider_id' => $request->provider_id,
+                ],
+                [
+                    'device' => $request->device,
+                    'device_token' => $request->device_token,
+                ]
+            );
+            $userCreated->assignRole('USER');
+            $token = $userCreated->createToken('token-name')->plainTextToken;
+            $data['token'] = $token;
+            $data['user'] = $userCreated;
+            if (!is_null($userCreated)) {
+                DB::commit();
+                return $this->sendResponse($data, 'User social login successfully.', 201);
+            } else {
+                DB::rollBack();
+                return $this->sendError('Social login failed!', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     * path="/api/otp-verify",
+     * operationId="Otp Verify",
+     * tags={"Auth Management"},
+     * summary="User Otp Verify",
+     * description="User Otp Verify here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"otp","user_id"},
+     *               @OA\Property(property="otp", type="text"),
+     *               @OA\Property(property="user_id", type="number")
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Otp verify successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="'otp invalid!"),
+     * )
+     */
+    public function otpVerify(Request $request)
+    {
+        $validator  =   Validator::make($request->all(), [
+            "otp"  =>  "required",
+            "user_id"=> "required|exist:users,id"
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+        try {
+            $user  = User::where(['user_id',$request->user_id,'otp'=>$request->otp])->first();
+            if(!is_null($user)){
+                $token = $user->createToken('token-name')->plainTextToken;
+                $data['token'] = $token;
+                $data['user'] = $user;
+                return $this->sendResponse($data, 'Otp verify successfully.', 201);
+            } else {
+                return $this->sendError('otp invalid!', [], 400);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
 }
