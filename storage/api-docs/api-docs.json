@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Laravel",
-        "description": "http://127.0.0.1:8000/api",
+        "description": "https://laravel9/api",
         "version": "1.0.0"
     },
     "paths": {
@@ -85,15 +85,11 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "password"
+                                    "phone"
                                 ],
                                 "properties": {
-                                    "email": {
-                                        "type": "email"
-                                    },
-                                    "password": {
-                                        "type": "password"
+                                    "phone": {
+                                        "type": "number"
                                     }
                                 },
                                 "type": "object"
@@ -159,6 +155,131 @@
                         "sanctum": []
                     }
                 ]
+            }
+        },
+        "/api/social-login": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "User Social Login",
+                "description": "User Social Login here",
+                "operationId": "Social Login",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "provider",
+                                    "provider_id",
+                                    "device_type",
+                                    "device_token"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "text"
+                                    },
+                                    "provider": {
+                                        "type": "text",
+                                        "enum": [
+                                            "google",
+                                            "facebook",
+                                            "instagram"
+                                        ]
+                                    },
+                                    "email": {
+                                        "type": "text"
+                                    },
+                                    "provider_id": {
+                                        "type": "text"
+                                    },
+                                    "device_type": {
+                                        "type": "text",
+                                        "enum": [
+                                            "ios",
+                                            "android"
+                                        ]
+                                    },
+                                    "device_token": {
+                                        "type": "text"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User social login successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Social login failed!"
+                    }
+                }
+            }
+        },
+        "/api/otp-verify": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "User Otp Verify",
+                "description": "User Otp Verify here",
+                "operationId": "Otp Verify",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "otp",
+                                    "user_id"
+                                ],
+                                "properties": {
+                                    "otp": {
+                                        "type": "text"
+                                    },
+                                    "user_id": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Otp verify successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "'otp invalid!"
+                    }
+                }
             }
         }
     },
