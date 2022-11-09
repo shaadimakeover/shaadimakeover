@@ -38,5 +38,10 @@ if (config('app.artisan') == 1) {
         return 'storage link generate.';
     });
 
+    Route::get('swagger-generate', function () {
+        Artisan::call('l5-swagger:generate');
+        return 'swagger doc generate.';
+    });
+
     Route::get('laravel-log', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 }
