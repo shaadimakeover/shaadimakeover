@@ -200,9 +200,6 @@ return [
         App\Providers\JetstreamServiceProvider::class,
 
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
-        //Firebase Auth
-        Kreait\Laravel\Firebase\ServiceProvider::class,
-
     ],
 
     /*
