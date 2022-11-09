@@ -5,502 +5,359 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Firebase\Auth\Token\Exception\InvalidToken;
+use Twilio\Rest\Client;
 
 class AuthController extends BaseController
 {
+    public $twilio;
+    public $twilio_auth_token;
+    public $twilio_sid;
+    public $twilio_verify_sid;
+
+    function _construct()
+    {
+        //Get twilio credentials from .env
+        $this->twilio_auth_token = getenv("TWILIO_AUTH_TOKEN");
+        $this->twilio_sid = getenv("TWILIO_SID");
+        $this->twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $this->twilio = new Client($this->twilio_sid, $this->twilio_auth_token);
+    }
 
     /**
      * @OA\Post(
      * path="/api/social-login",
      * operationId="Social Login",
      * tags={"Auth Management"},
-     * summary="User Social Login",
-     * description="User Social Login here",
+     * summary="Social login",
+     * description="Social login here",
      *     @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"name","email","provider", "provider_id", "device_type","device_token"},
+     *               required={"name","email","provider","provider_id","subscription_id"},
      *               @OA\Property(property="name", type="text"),
-     *               @OA\Property(property="provider", type="text", enum={"google","facebook","instagram"}),
      *               @OA\Property(property="email", type="text"),
-     *               @OA\Property(property="provider_id", type="text"),
-     *               @OA\Property(property="device_type", type="text", enum={"ios","android"}),
-     *               @OA\Property(property="device_token", type="text")
+     *               @OA\Property(property="phone", type="integer"),
+     *               @OA\Property(property="avatar", type="file"),
+     *               @OA\Property(property="provider", type="text"),
+     *               @OA\Property(property="provider_id", type="text")
      *            ),
      *        ),
      *    ),
      *      @OA\Response(
      *          response=201,
-     *          description="Login successfully.",
+     *          description="Social login successfully done",
      *          @OA\JsonContent()
      *       ),
      *      @OA\Response(response=400, description="Bad request"),
-     *      @OA\Response(response=404, description="Login failed!"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
      * )
      */
+
     public function socialLogin(Request $request)
     {
         $validator  =   Validator::make($request->all(), [
-            "email"  =>  "required",
             "name"  =>  "required",
-            "provider"  =>  "required|in:google,facebook,instagram",
-            "provider_id"  =>  "required",
-            "device_type"  =>  "required|in:ios,android",
-            "device_token"  =>  "required",
+            "email"  =>  "required|email|unique:users",
+            "phone"  =>  "nullable|unique:users",
+            "avatar" => "nullable",
+            "provider"  =>  "required",
+            "provider_id"  =>  "required"
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
 
         DB::beginTransaction();
         try {
-            $name = explode(" ", $request->name);
+            $name = $request->name;
+            $splitName = explode(' ', $name, 2); // Restricts it to only 2 values, for names like Billy Bob Jones
+            $first_name = $splitName[0];
+            $last_name = !empty($splitName[1]) ? $splitName[1] : ''; // If last name doesn't exist, make it empty
+
             $userCreated = User::firstOrCreate(
                 [
                     'email' => $request->email
                 ],
                 [
                     'email_verified_at' => now(),
-                    'first_name' => $name[0],
-                    'last_name' => isset($name[1]) ? $name[1] : null,
+                    'first_name' => $first_name,
+                    'last_name' => $last_name,
+                    'subscription_id' => $request->subscription_id,
+                    'active' => true,
                 ]
             );
+
             $userCreated->providers()->updateOrCreate(
                 [
                     'provider' => $request->provider,
-                    'provider_id' => $request->provider_id,
+                    'provider_id' => $request->provider,
                 ],
                 [
-                    'device' => $request->device,
-                    'device_token' => $request->device_token,
+                    'avatar' => $request->avatar
                 ]
             );
+
             $userCreated->assignRole('USER');
-            $token = $userCreated->createToken('shaadimakeover2022')->plainTextToken;
-            $data['token'] = $token;
-            $data['user'] = $userCreated;
-            if (!is_null($userCreated)) {
-                DB::commit();
-                return $this->sendResponse($data, 'Login successfully.', 201);
-            } else {
-                DB::rollBack();
-                return $this->sendError('Login failed!', [], 400);
-            }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
-        }
-    }
 
-    /**
-     * @OA\Post(
-     * path="/api/register",
-     * operationId="Register",
-     * tags={"Auth Management"},
-     * summary="User Register",
-     * description="User Register here",
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(),
-     *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
-     *            @OA\Schema(
-     *               type="object",
-     *               required={"name","email","phone","location","user_type", "password", "confirm_password"},
-     *               @OA\Property(property="name", type="text"),
-     *               @OA\Property(property="email",description="optional",type="string"),            
-     *               @OA\Property(property="phone", type="integer"),
-     *               @OA\Property(property="location", type="text"),
-     *               @OA\Property(property="user_type", type="text",  enum={"customer","artist"}),
-     *               @OA\Property(property="password", type="password"),
-     *               @OA\Property(property="confirm_password", type="password"),
-     *            ),
-     *        ),
-     *    ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="Register Successfully",
-     *          @OA\JsonContent()
-     *       ),
-     *      @OA\Response(response=400, description="Bad request"),
-     *      @OA\Response(response=404, description="Resource Not Found"),
-     * )
-     */
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            "name"  =>  "required",
-            "email"  =>  "nullable|email|unique:users",
-            "phone"  =>  "required|numeric|unique:users",
-            "location"  =>  "required",
-            "user_type" => "required",
-            "password" => "required",
-            "confirm_password" => "required|same:password"
-        ]);
+            DB::commit();
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 200);
-        }
+            $token = $userCreated->createToken('my-assam-token')->plainTextToken;
 
-        DB::beginTransaction();
-        try {
-            $name = explode(" ", $request->name);
-            $data = [
-                'first_name' => $name[0],
-                'last_name' => isset($name[1]) ? $name[1] : null,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => $request->password,
-                'location' => $request->location
-            ];
-
-            $user = User::create($data);
-
-            if (!is_null($user)) {
-                if ($request->user_type == "customer") {
-                    $user->assignRole('USER');
-                } else {
-                    $user->assignRole('ARTIST');
-                }
-                DB::commit();
-                return $this->sendResponse($user, 'Registration successfully.', 201);
-            } else {
-                return $this->sendError('Registration failed!');
-            }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
-        }
-    }
-
-    /**
-     * @OA\Post(
-     * path="/api/login",
-     * operationId="authLogin",
-     * tags={"Auth Management"},
-     * summary="User Login",
-     * description="Login User Here",
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(),
-     *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
-     *            @OA\Schema(
-     *               type="object",
-     *               required={"email","password"},
-     *               @OA\Property(property="email",description="email or phone", type="text"),
-     *               @OA\Property(property="password", type="password"),
-     *            ),
-     *        ),
-     *    ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Login Successfully",
-     *          @OA\JsonContent()
-     *       ),
-     *      @OA\Response(
-     *          response=422,
-     *          description="Unprocessable Entity",
-     *          @OA\JsonContent()
-     *       ),
-     *      @OA\Response(response=400, description="Bad request"),
-     *      @OA\Response(response=404, description="Resource Not Found"),
-     * )
-     */
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 200);
-        }
-
-        try {
-
-            if (is_numeric($request->get('email'))) {
-
-                $user = User::where('phone', $request->get('email'))->first();
-
-                if (is_null($user)) {
-                    return $this->sendError('Failed! mobile number not valid', [], 404);
-                }
-
-                if (Auth::attempt(['phone' => $request->email, 'password' => $request->password])) {
-                    $user       =       User::find(Auth::id());
-                    $token      =       $user->createToken('token')->plainTextToken;
-
-                    $response = [
-                        'success' => true,
-                        'data'    => $user,
-                        'token'    => $token,
-                        'message' => 'Login successfully.',
-                    ];
-                    return response()->json($response, 200);
-                } else {
-
-                    return $this->sendError("Whoops! invalid password", [], 400);
-                }
-            } elseif (filter_var($request->get('email'), FILTER_VALIDATE_EMAIL)) {
-
-                $user = User::where('email', $request->get('email'))->first();
-
-                if (is_null($user)) {
-                    return $this->sendError('Failed! mobile number not valid', [], 404);
-                }
-
-                if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                    $user = User::find(Auth::id());
-                    $token = $user->createToken('token')->plainTextToken;
-
-                    $response = [
-                        'success' => true,
-                        'data'    => $user,
-                        'token'    => $token,
-                        'message' => 'Login successfully.',
-                    ];
-                    return response()->json($response, 200);
-                } else {
-                    return $this->sendError("Whoops! invalid password", [], 400);
-                }
-            } else {
-                return $this->sendError("Whoops! invalid password", [], 400);
-            }
-        } catch (\Throwable $th) {
-            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
-        }
-    }
-
-    /**
-     * @OA\Get(
-     * path="/api/user",
-     * operationId="User Details",
-     * tags={"User Details"},
-     * summary="User Details Fetch",
-     *  security={{"sanctum":{}}},
-     * description="Get User Details ",
-     *      @OA\Response(
-     *          response=201,
-     *          description="Register Successfully",
-     *          @OA\JsonContent()
-     *       ),
-     *      @OA\Response(response=400, description="Bad request"),
-     *      @OA\Response(response=404, description="Resource Not Found"),
-     * )
-     */
-
-    public function user()
-    {
-        try {
-            $user = Auth::user();
-            if (!is_null($user)) {
-                return $this->sendResponse($user, 'User retrieved successfully.');
-            } else {
-                return $this->sendError("Whoops! no user found", [], 404);
-            }
-        } catch (\Throwable $th) {
-            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
-        }
-    }
-
-
-
-    /**
-     * @OA\Post(
-     * path="/api/otp-verify",
-     * operationId="Otp Verify",
-     * tags={"Auth Management"},
-     * summary="User Otp Verify",
-     * description="User Otp Verify here",
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(),
-     *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
-     *            @OA\Schema(
-     *               type="object",
-     *               required={"otp","user_id"},
-     *               @OA\Property(property="otp", type="text"),
-     *               @OA\Property(property="user_id", type="number")
-     *            ),
-     *        ),
-     *    ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="Otp verify successfully.",
-     *          @OA\JsonContent()
-     *       ),
-     *      @OA\Response(response=400, description="Bad request"),
-     *      @OA\Response(response=404, description="'otp invalid!"),
-     * )
-     */
-    public function otpVerify(Request $request)
-    {
-        $validator  =   Validator::make($request->all(), [
-            "otp"  =>  "required",
-            "user_id" => "required|exist:users,id"
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-        try {
-            $user  = User::where(['user_id', $request->user_id, 'otp' => $request->otp])->first();
-            if (!is_null($user)) {
-                $token = $user->createToken('token-name')->plainTextToken;
-                $data['token'] = $token;
-                $data['user'] = $user;
-                return $this->sendResponse($data, 'Otp verify successfully.', 201);
-            } else {
-                return $this->sendError('otp invalid!', [], 400);
-            }
-        } catch (\Throwable $th) {
-            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
-        }
-    }
-
-    public function check()
-    {
-        // Launch Firebase Auth
-        $auth = app('firebase.auth');
-        //check
-        $uid = 'y2WfNc5nubUX5bcre3HtLG1QXPJ3';
-        $customToken = $auth->createCustomToken($uid);
-        $customTokenString = $customToken->toString();
-        //$verifiedIdToken = $auth->verifyIdToken($customTokenString);
-        $signInResult = $auth->signInWithCustomToken($customTokenString);
-        dd($signInResult);
-        // return response()->json([
-        //     "success" => true,
-        //     "data" => $signInResult,
-        //     'message' => "data foun",
-        // ], 200);
-    }
-
-    public function firebaseLogin(Request $request)
-    {
-
-        // Launch Firebase Auth
-        $auth = app('firebase.auth');
-        // Retrieve the Firebase credential's token
-        $idTokenString = $request->input('token');
-
-        try {
-            // Try to verify the Firebase credential token with Google
-            $verifiedIdToken = $auth->verifyIdToken($idTokenString);
-        } catch (\InvalidArgumentException $e) {
-            // If the token has the wrong format
-
-            return response([
-                'success' => false,
-                'data' => null,
-                'message' => 'Unauthorized - Can\'t parse the token: ' . $e->getMessage(),
-            ], 401);
-        } catch (InvalidToken $e) { // If the token is invalid (expired ...)
-
-            return response([
-                'success' => false,
-                'data' => null,
-                'message' => 'Unauthorized - Token is invalide: ' . $e->getMessage(),
-            ], 401);
-        }
-
-        // Retrieve the UID (User ID) from the verified Firebase credential's token
-        $uid = $verifiedIdToken->getClaim('sub');
-
-        // Retrieve the user model linked with the Firebase UID
-        $user = $auth->getUser($uid);
-
-        // Here you could check if the user model exist and if not create it
-        // For simplicity we will ignore this step
-
-        // Once we got a valid user model
-        // Create a Personnal Access Token
-        // $tokenResult = $user->createToken('Personal Access Token');
-
-        // // Store the created token
-        // $token = $tokenResult->token;
-
-        // // Add a expiration date to the token
-        // $token->expires_at = Carbon::now()->addWeeks(1);
-
-        // // Save the token to the user
-        // $token->save();
-
-        //$user = Customer::where('uid', $uid)->first();
-
-        // Return a JSON object containing the token datas
-        // You may format this object to suit your needs
-        // return response()->json([
-        //     'id' => $user->id,
-        //     'access_token' => $tokenResult->accessToken,
-        //     'token_type' => 'Bearer',
-        //     'expires_at' => Carbon::parse(
-        //         $tokenResult->token->expires_at
-        //     )->toDateTimeString(),
-        // ]);
-
-        $getUser = $this->getOrCreateUser($uid, $user->phoneNumber);
-        if ($getUser) {
-
-            return response([
+            $response = [
                 'success' => true,
-                'data' => $getUser,
-                'message' => "Login sucessfully!",
-            ], 200);
-        } else {
-
-            return response([
-                'success' => false,
-                'data' => null,
-                'message' => "Login fail!",
-            ], 400);
+                'data'    => $userCreated,
+                'token'    => $token,
+                'message' => 'Login successfully.',
+            ];
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: SOCIAL LOGIN EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
         }
     }
 
-    public function getOrCreateUser($uid, $phoneNumber)
+    /**
+     * @OA\Post(
+     * path="/api/get-otp",
+     * operationId="Get OTP",
+     * tags={"Auth Management"},
+     * summary="Get OTP",
+     * description="Get otp here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"email","phone_number","request_type"},
+     *               @OA\Property(property="email", type="email"),
+     *               @OA\Property(property="phone_number", type="integer"),
+     *               @OA\Property(property="request_type",type="text", enum={"login","register","reset_password"})
+     *
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Get OTP retrieve successfully done",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function getOTP(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required_without:phone_number', 'email:rfc,dns'],
+            'phone_number' => ['required_without:email', 'numeric'],
+            'request_type' => ['required', 'string'], //login,register,reset_password
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
         try {
+            if ($request->email) {
 
-            $modifiedPhoneNumber = substr($phoneNumber, 3);
-            $user = User::where('phone', $modifiedPhoneNumber)->first();
-            /**
-             * 1. Find user by phone
-             *   - if phone number exist checks uid null or not
-             */
-
-            if ($user) {
-
-                if ($user->uid == null) {
-                    $user->uid = $uid;
-                    $user->save();
+                $getUser = User::where('email', $request->email)->first();
+                //Check user exist when send reset password otp using email
+                if ($request->request_type == "reset_password") {
+                    if (is_null($getUser)) {
+                        return $this->sendError('Invalided email.');
+                    }
                 }
 
-                return $user;
+                $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                    ->verifications
+                    ->create($request->email, "email");
+
+                $userCreated = User::firstOrCreate([
+                    'email' => $request->email
+                ]);
             } else {
 
-                $new_user = new User();
-                $new_user->uid = $uid;
-                $new_user->phone = $modifiedPhoneNumber;
-                $new_user->save();
-                return $new_user;
+                $getUser = User::where('phone', $request->phone_number)->first();
+                //Check user exist when send reset password otp using phone number
+                if ($request->request_type == "reset_password") {
+                    if (is_null($getUser)) {
+                        return $this->sendError('Invalided phone number.');
+                    }
+                }
+
+                $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                    ->verifications
+                    ->create($request->phone_number, "sms");
+                $userCreated = User::firstOrCreate([
+                    'phone' => $request->phone_number
+                ]);
+            }
+
+            return $this->sendResponse($userCreated, 'OTP send successfully');
+        } catch (\Throwable $th) {
+            Log::error(" :: GET OTP EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     * path="/api/verify-otp",
+     * operationId="Verify OTP",
+     * tags={"Auth Management"},
+     * summary="Verify OTP",
+     * description="Verify otp here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"code","email","phone_number"},
+     *               @OA\Property(property="code", type="integer"),
+     *               @OA\Property(property="email", type="email"),
+     *               @OA\Property(property="phone_number", type="integer"),
+     *
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Get OTP retrieve successfully done",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+
+
+    public function verifyOTP(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => ['required', 'numeric'],
+            'email' => ['required_without:phone_number', 'email:rfc,dns'],
+            'phone_number' => ['required_without:email', 'numeric']
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        try {
+
+            if ($request->email) {
+                $verification = $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                    ->verificationChecks
+                    ->create([
+                        'to' => $request->email,
+                        "code" => $request->code
+                    ]);
+            } else {
+                $verification = $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                    ->verificationChecks
+                    ->create([
+                        'to' => $request->phone_number,
+                        "code" => $request->code
+                    ]);
+            }
+
+            if ($verification->valid) {
+                if ($verification->channel == "email") {
+                    $user = tap(User::where('email', $request->email))->update(['isVerified' => true]);
+                } else {
+                    $user = tap(User::where('phone', $request->phone_number))->update(['isVerified' => true]);
+                }
+                $token = $user->createToken('my-assam-token')->plainTextToken;
+
+                $response = [
+                    'success' => true,
+                    'data'    => $user,
+                    'token'    => $token,
+                    'message' => 'OTP verified successfully',
+                ];
+                return response()->json($response, 200);
+            } else {
+                return $this->sendError('Invalid otp code entered!');
             }
         } catch (\Throwable $th) {
-            //throw $th;
-            return false;
+            Log::error(" :: VERIFY OTP EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+
+    /**
+     * @OA\Post(
+     * path="/api/reset-password/{user_id}",
+     * operationId="Reset Password",
+     * tags={"Auth Management"},
+     * summary="Reset Password",
+     * description="Reset Password here",
+     * @OA\Parameter(
+     *          name="user_id",
+     *          description="User ID",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"password","confirm_password"},
+     *               @OA\Property(property="password", type="password"),
+     *               @OA\Property(property="confirm_password", type="confirm_password")
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Get OTP retrieve successfully done",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function resetPassword(Request $request, $user_id)
+    {
+        $validator = Validator::make($request->all(), [
+            "password"  =>  "required",
+            "confirm_password"  =>  "required|same:password",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        try {
+            $getUser = User::find($user_id);
+            if ($getUser) {
+                $getUser->password = $request->password;
+                $getUser->save();
+            } else {
+                return $this->sendError('User not found.');
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: RESET PASSWORD EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
         }
     }
 }

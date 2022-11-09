@@ -15,6 +15,14 @@ class ImageHelper
         Storage::disk($diskName)->put($imageFullName, File::get($imageFromRequest));
         return $imageFullName;
     }
+    public static function customSaveImage($file, $path)
+    {
+        $filename = uniqid() . time() . rand(10, 1000000) . '.' . $file->getClientOriginalExtension();
+        Storage::putFileAs($path, $file, $filename);
+        $fileUrl = 'storage/' . $path . '/' . $filename;
+        return $fileUrl;
+    }
+    
     public static function deleteImage($imageName, $diskName)
     {
         //dd($imageName);
