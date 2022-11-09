@@ -90,6 +90,3 @@ Visit this link to open swagger api documentation
 
 Theme change admin panel
 - public/admin_assets/custom.css
-
-
-

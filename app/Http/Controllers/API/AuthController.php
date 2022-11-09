@@ -9,9 +9,99 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Firebase\Auth\Token\Exception\InvalidToken;
 
 class AuthController extends BaseController
 {
+
+    /**
+     * @OA\Post(
+     * path="/api/social-login",
+     * operationId="Social Login",
+     * tags={"Auth Management"},
+     * summary="User Social Login",
+     * description="User Social Login here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"name","email","provider", "provider_id", "device_type","device_token"},
+     *               @OA\Property(property="name", type="text"),
+     *               @OA\Property(property="provider", type="text", enum={"google","facebook","instagram"}),
+     *               @OA\Property(property="email", type="text"),
+     *               @OA\Property(property="provider_id", type="text"),
+     *               @OA\Property(property="device_type", type="text", enum={"ios","android"}),
+     *               @OA\Property(property="device_token", type="text")
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Login successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Login failed!"),
+     * )
+     */
+    public function socialLogin(Request $request)
+    {
+        $validator  =   Validator::make($request->all(), [
+            "email"  =>  "required",
+            "name"  =>  "required",
+            "provider"  =>  "required|in:google,facebook,instagram",
+            "provider_id"  =>  "required",
+            "device_type"  =>  "required|in:ios,android",
+            "device_token"  =>  "required",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        DB::beginTransaction();
+        try {
+            $name = explode(" ", $request->name);
+            $userCreated = User::firstOrCreate(
+                [
+                    'email' => $request->email
+                ],
+                [
+                    'email_verified_at' => now(),
+                    'first_name' => $name[0],
+                    'last_name' => isset($name[1]) ? $name[1] : null,
+                ]
+            );
+            $userCreated->providers()->updateOrCreate(
+                [
+                    'provider' => $request->provider,
+                    'provider_id' => $request->provider_id,
+                ],
+                [
+                    'device' => $request->device,
+                    'device_token' => $request->device_token,
+                ]
+            );
+            $userCreated->assignRole('USER');
+            $token = $userCreated->createToken('shaadimakeover2022')->plainTextToken;
+            $data['token'] = $token;
+            $data['user'] = $userCreated;
+            if (!is_null($userCreated)) {
+                DB::commit();
+                return $this->sendResponse($data, 'Login successfully.', 201);
+            } else {
+                DB::rollBack();
+                return $this->sendError('Login failed!', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
     /**
      * @OA\Post(
      * path="/api/register",
@@ -25,13 +115,14 @@ class AuthController extends BaseController
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"first_name","last_name","email","phone", "password", "confirm_password"},
-     *               @OA\Property(property="first_name", type="text"),
-     *               @OA\Property(property="last_name", type="text"),
-     *               @OA\Property(property="email", type="text"),
+     *               required={"name","email","phone","location","user_type", "password", "confirm_password"},
+     *               @OA\Property(property="name", type="text"),
+     *               @OA\Property(property="email",description="optional",type="string"),            
      *               @OA\Property(property="phone", type="integer"),
+     *               @OA\Property(property="location", type="text"),
+     *               @OA\Property(property="user_type", type="text",  enum={"customer","artist"}),
      *               @OA\Property(property="password", type="password"),
-     *               @OA\Property(property="confirm_password", type="password")
+     *               @OA\Property(property="confirm_password", type="password"),
      *            ),
      *        ),
      *    ),
@@ -46,29 +137,47 @@ class AuthController extends BaseController
      */
     public function register(Request $request)
     {
-        $validator  =   Validator::make($request->all(), [
-            "first_name"  =>  "required",
-            "email"  =>  "required|email|unique:users",
-            "address"  =>  "required",
+        $validator = Validator::make($request->all(), [
+            "name"  =>  "required",
+            "email"  =>  "nullable|email|unique:users",
+            "phone"  =>  "required|numeric|unique:users",
+            "location"  =>  "required",
+            "user_type" => "required",
+            "password" => "required",
+            "confirm_password" => "required|same:password"
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendError('Validation Error.', $validator->errors(), 200);
         }
 
-        //DB::beginTransaction();
+        DB::beginTransaction();
         try {
-            $inputs = $request->all();
-            $user   =   User::create($inputs);
-            $user->assignRole('USER');
+            $name = explode(" ", $request->name);
+            $data = [
+                'first_name' => $name[0],
+                'last_name' => isset($name[1]) ? $name[1] : null,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => $request->password,
+                'location' => $request->location
+            ];
+
+            $user = User::create($data);
+
             if (!is_null($user)) {
-                //DB::commit();
-                return $this->sendResponse($user, 'User registration successfully.', 201);
+                if ($request->user_type == "customer") {
+                    $user->assignRole('USER');
+                } else {
+                    $user->assignRole('ARTIST');
+                }
+                DB::commit();
+                return $this->sendResponse($user, 'Registration successfully.', 201);
             } else {
-                return $this->sendError('Registration failed!', [], 400);
+                return $this->sendError('Registration failed!');
             }
         } catch (\Throwable $th) {
-            //DB::rollBack();
+            DB::rollBack();
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -87,8 +196,9 @@ class AuthController extends BaseController
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"phone"},
-     *               @OA\Property(property="phone", type="number")
+     *               required={"email","password"},
+     *               @OA\Property(property="email",description="email or phone", type="text"),
+     *               @OA\Property(property="password", type="password"),
      *            ),
      *        ),
      *    ),
@@ -108,39 +218,62 @@ class AuthController extends BaseController
      */
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            "phone" =>  "required",
+            'email' => 'required',
+            'password' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendError('Validation Error.', $validator->errors(), 200);
         }
 
         try {
 
-            $user = User::where("phone", $request->phone)->first();
+            if (is_numeric($request->get('email'))) {
 
-            if (is_null($user)) {
-                return $this->sendError('Failed! mobile number not valid', [], 404);
-            }
+                $user = User::where('phone', $request->get('email'))->first();
 
-            if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                $user       =       User::find(Auth::id());
-                $token      =       $user->createToken('token')->plainTextToken;
-                $userData = [
-                    'user_id' => $user->id,
-                    'user_name' => $user->full_name,
-                    'token' => $token
-                ];
+                if (is_null($user)) {
+                    return $this->sendError('Failed! mobile number not valid', [], 404);
+                }
 
-                $response = [
-                    'success' => true,
-                    'data'    => $user,
-                    'token'    => $token,
-                    'message' => 'Login successfully.',
-                ];
-                return response()->json($response, 200);
+                if (Auth::attempt(['phone' => $request->email, 'password' => $request->password])) {
+                    $user       =       User::find(Auth::id());
+                    $token      =       $user->createToken('token')->plainTextToken;
+
+                    $response = [
+                        'success' => true,
+                        'data'    => $user,
+                        'token'    => $token,
+                        'message' => 'Login successfully.',
+                    ];
+                    return response()->json($response, 200);
+                } else {
+
+                    return $this->sendError("Whoops! invalid password", [], 400);
+                }
+            } elseif (filter_var($request->get('email'), FILTER_VALIDATE_EMAIL)) {
+
+                $user = User::where('email', $request->get('email'))->first();
+
+                if (is_null($user)) {
+                    return $this->sendError('Failed! mobile number not valid', [], 404);
+                }
+
+                if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                    $user = User::find(Auth::id());
+                    $token = $user->createToken('token')->plainTextToken;
+
+                    $response = [
+                        'success' => true,
+                        'data'    => $user,
+                        'token'    => $token,
+                        'message' => 'Login successfully.',
+                    ];
+                    return response()->json($response, 200);
+                } else {
+                    return $this->sendError("Whoops! invalid password", [], 400);
+                }
             } else {
                 return $this->sendError("Whoops! invalid password", [], 400);
             }
@@ -183,93 +316,7 @@ class AuthController extends BaseController
         }
     }
 
-    /**
-     * @OA\Post(
-     * path="/api/social-login",
-     * operationId="Social Login",
-     * tags={"Auth Management"},
-     * summary="User Social Login",
-     * description="User Social Login here",
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(),
-     *         @OA\MediaType(
-     *            mediaType="multipart/form-data",
-     *            @OA\Schema(
-     *               type="object",
-     *               required={"name","email","provider", "provider_id", "device_type","device_token"},
-     *               @OA\Property(property="name", type="text"),
-     *               @OA\Property(property="provider", type="text", enum={"google","facebook","instagram"}),
-     *               @OA\Property(property="email", type="text"),
-     *               @OA\Property(property="provider_id", type="text"),
-     *               @OA\Property(property="device_type", type="text", enum={"ios","android"}),
-     *               @OA\Property(property="device_token", type="text")
-     *            ),
-     *        ),
-     *    ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="User social login successfully.",
-     *          @OA\JsonContent()
-     *       ),
-     *      @OA\Response(response=400, description="Bad request"),
-     *      @OA\Response(response=404, description="Social login failed!"),
-     * )
-     */
-    public function socialLogin(Request $request)
-    {
-        $validator  =   Validator::make($request->all(), [
-            "email"  =>  "required",
-            "name"  =>  "required",
-            "provider"  =>  "required|in:google,facebook,instagram",
-            "provider_id"  =>  "required",
-            "device_type"  =>  "required|in:ios,android",
-            "device_token"  =>  "required",
-        ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-        DB::beginTransaction();
-        try {
-            $name = explode(" ",$request->name);
-            $userCreated = User::firstOrCreate(
-                [
-                    'email' => $request->email
-                ],
-                [
-                    'email_verified_at' => now(),
-                    'first_name' => $name[0],
-                    'last_name' => isset($name[1]) ? $name[1]:null,
-                ]
-            );
-            $userCreated->providers()->updateOrCreate(
-                [
-                    'provider' => $request->provider,
-                    'provider_id' => $request->provider_id,
-                ],
-                [
-                    'device' => $request->device,
-                    'device_token' => $request->device_token,
-                ]
-            );
-            $userCreated->assignRole('USER');
-            $token = $userCreated->createToken('token-name')->plainTextToken;
-            $data['token'] = $token;
-            $data['user'] = $userCreated;
-            if (!is_null($userCreated)) {
-                DB::commit();
-                return $this->sendResponse($data, 'User social login successfully.', 201);
-            } else {
-                DB::rollBack();
-                return $this->sendError('Social login failed!', [], 400);
-            }
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
-        }
-    }
 
     /**
      * @OA\Post(
@@ -303,15 +350,15 @@ class AuthController extends BaseController
     {
         $validator  =   Validator::make($request->all(), [
             "otp"  =>  "required",
-            "user_id"=> "required|exist:users,id"
+            "user_id" => "required|exist:users,id"
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
         try {
-            $user  = User::where(['user_id',$request->user_id,'otp'=>$request->otp])->first();
-            if(!is_null($user)){
+            $user  = User::where(['user_id', $request->user_id, 'otp' => $request->otp])->first();
+            if (!is_null($user)) {
                 $token = $user->createToken('token-name')->plainTextToken;
                 $data['token'] = $token;
                 $data['user'] = $user;
@@ -325,4 +372,135 @@ class AuthController extends BaseController
         }
     }
 
+    public function check()
+    {
+        // Launch Firebase Auth
+        $auth = app('firebase.auth');
+        //check
+        $uid = 'y2WfNc5nubUX5bcre3HtLG1QXPJ3';
+        $customToken = $auth->createCustomToken($uid);
+        $customTokenString = $customToken->toString();
+        //$verifiedIdToken = $auth->verifyIdToken($customTokenString);
+        $signInResult = $auth->signInWithCustomToken($customTokenString);
+        dd($signInResult);
+        // return response()->json([
+        //     "success" => true,
+        //     "data" => $signInResult,
+        //     'message' => "data foun",
+        // ], 200);
+    }
+
+    public function firebaseLogin(Request $request)
+    {
+
+        // Launch Firebase Auth
+        $auth = app('firebase.auth');
+        // Retrieve the Firebase credential's token
+        $idTokenString = $request->input('token');
+
+        try {
+            // Try to verify the Firebase credential token with Google
+            $verifiedIdToken = $auth->verifyIdToken($idTokenString);
+        } catch (\InvalidArgumentException $e) {
+            // If the token has the wrong format
+
+            return response([
+                'success' => false,
+                'data' => null,
+                'message' => 'Unauthorized - Can\'t parse the token: ' . $e->getMessage(),
+            ], 401);
+        } catch (InvalidToken $e) { // If the token is invalid (expired ...)
+
+            return response([
+                'success' => false,
+                'data' => null,
+                'message' => 'Unauthorized - Token is invalide: ' . $e->getMessage(),
+            ], 401);
+        }
+
+        // Retrieve the UID (User ID) from the verified Firebase credential's token
+        $uid = $verifiedIdToken->getClaim('sub');
+
+        // Retrieve the user model linked with the Firebase UID
+        $user = $auth->getUser($uid);
+
+        // Here you could check if the user model exist and if not create it
+        // For simplicity we will ignore this step
+
+        // Once we got a valid user model
+        // Create a Personnal Access Token
+        // $tokenResult = $user->createToken('Personal Access Token');
+
+        // // Store the created token
+        // $token = $tokenResult->token;
+
+        // // Add a expiration date to the token
+        // $token->expires_at = Carbon::now()->addWeeks(1);
+
+        // // Save the token to the user
+        // $token->save();
+
+        //$user = Customer::where('uid', $uid)->first();
+
+        // Return a JSON object containing the token datas
+        // You may format this object to suit your needs
+        // return response()->json([
+        //     'id' => $user->id,
+        //     'access_token' => $tokenResult->accessToken,
+        //     'token_type' => 'Bearer',
+        //     'expires_at' => Carbon::parse(
+        //         $tokenResult->token->expires_at
+        //     )->toDateTimeString(),
+        // ]);
+
+        $getUser = $this->getOrCreateUser($uid, $user->phoneNumber);
+        if ($getUser) {
+
+            return response([
+                'success' => true,
+                'data' => $getUser,
+                'message' => "Login sucessfully!",
+            ], 200);
+        } else {
+
+            return response([
+                'success' => false,
+                'data' => null,
+                'message' => "Login fail!",
+            ], 400);
+        }
+    }
+
+    public function getOrCreateUser($uid, $phoneNumber)
+    {
+        try {
+
+            $modifiedPhoneNumber = substr($phoneNumber, 3);
+            $user = User::where('phone', $modifiedPhoneNumber)->first();
+            /**
+             * 1. Find user by phone
+             *   - if phone number exist checks uid null or not
+             */
+
+            if ($user) {
+
+                if ($user->uid == null) {
+                    $user->uid = $uid;
+                    $user->save();
+                }
+
+                return $user;
+            } else {
+
+                $new_user = new User();
+                $new_user->uid = $uid;
+                $new_user->phone = $modifiedPhoneNumber;
+                $new_user->save();
+                return $new_user;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
+    }
 }

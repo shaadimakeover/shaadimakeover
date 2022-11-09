@@ -2,10 +2,85 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Laravel",
-        "description": "https://laravel9/api",
+        "description": "https://laravel/api",
         "version": "1.0.0"
     },
     "paths": {
+        "/api/social-login": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "User Social Login",
+                "description": "User Social Login here",
+                "operationId": "Social Login",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "provider",
+                                    "provider_id",
+                                    "device_type",
+                                    "device_token"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "text"
+                                    },
+                                    "provider": {
+                                        "type": "text",
+                                        "enum": [
+                                            "google",
+                                            "facebook",
+                                            "instagram"
+                                        ]
+                                    },
+                                    "email": {
+                                        "type": "text"
+                                    },
+                                    "provider_id": {
+                                        "type": "text"
+                                    },
+                                    "device_type": {
+                                        "type": "text",
+                                        "enum": [
+                                            "ios",
+                                            "android"
+                                        ]
+                                    },
+                                    "device_token": {
+                                        "type": "text"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Login successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Login failed!"
+                    }
+                }
+            }
+        },
         "/api/register": {
             "post": {
                 "tags": [
@@ -19,25 +94,34 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "first_name",
-                                    "last_name",
+                                    "name",
                                     "email",
                                     "phone",
+                                    "location",
+                                    "user_type",
                                     "password",
                                     "confirm_password"
                                 ],
                                 "properties": {
-                                    "first_name": {
-                                        "type": "text"
-                                    },
-                                    "last_name": {
+                                    "name": {
                                         "type": "text"
                                     },
                                     "email": {
-                                        "type": "text"
+                                        "description": "optional",
+                                        "type": "string"
                                     },
                                     "phone": {
                                         "type": "integer"
+                                    },
+                                    "location": {
+                                        "type": "text"
+                                    },
+                                    "user_type": {
+                                        "type": "text",
+                                        "enum": [
+                                            "customer",
+                                            "artist"
+                                        ]
                                     },
                                     "password": {
                                         "type": "password"
@@ -85,11 +169,16 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "phone"
+                                    "email",
+                                    "password"
                                 ],
                                 "properties": {
-                                    "phone": {
-                                        "type": "number"
+                                    "email": {
+                                        "description": "email or phone",
+                                        "type": "text"
+                                    },
+                                    "password": {
+                                        "type": "password"
                                     }
                                 },
                                 "type": "object"
@@ -155,81 +244,6 @@
                         "sanctum": []
                     }
                 ]
-            }
-        },
-        "/api/social-login": {
-            "post": {
-                "tags": [
-                    "Auth Management"
-                ],
-                "summary": "User Social Login",
-                "description": "User Social Login here",
-                "operationId": "Social Login",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "provider",
-                                    "provider_id",
-                                    "device_type",
-                                    "device_token"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "text"
-                                    },
-                                    "provider": {
-                                        "type": "text",
-                                        "enum": [
-                                            "google",
-                                            "facebook",
-                                            "instagram"
-                                        ]
-                                    },
-                                    "email": {
-                                        "type": "text"
-                                    },
-                                    "provider_id": {
-                                        "type": "text"
-                                    },
-                                    "device_type": {
-                                        "type": "text",
-                                        "enum": [
-                                            "ios",
-                                            "android"
-                                        ]
-                                    },
-                                    "device_token": {
-                                        "type": "text"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "User social login successfully.",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "404": {
-                        "description": "Social login failed!"
-                    }
-                }
             }
         },
         "/api/otp-verify": {
