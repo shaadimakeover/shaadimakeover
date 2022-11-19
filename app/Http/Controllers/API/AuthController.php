@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -21,8 +22,8 @@ class AuthController extends BaseController
     {
         //Get twilio credentials from .env
         $this->twilio_auth_token = getenv("TWILIO_AUTH_TOKEN");
-        $this->twilio_sid = getenv("TWILIO_SID");
-        $this->twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $this->twilio_sid = getenv("TWILIO_ACCOUNT_SID");
+        $this->twilio_verify_sid = getenv("TWILIO_VERIFICATION_SID");
         $this->twilio = new Client($this->twilio_sid, $this->twilio_auth_token);
     }
 
@@ -157,6 +158,17 @@ class AuthController extends BaseController
 
     public function getOTP(Request $request)
     {
+        /* Get credentials from .env */
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+
+        // $response = $twilio->verify->v2->services($twilio_verify_sid)
+        //     ->verifications
+        //     ->create($request->phone_number, "sms");
+        // dd($response);
+
         $validator = Validator::make($request->all(), [
             'email' => ['required_without:phone_number', 'email:rfc,dns'],
             'phone_number' => ['required_without:email', 'numeric'],
@@ -195,9 +207,10 @@ class AuthController extends BaseController
                     }
                 }
 
-                $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                $twilio->verify->v2->services($twilio_verify_sid)
                     ->verifications
                     ->create($request->phone_number, "sms");
+
                 $userCreated = User::firstOrCreate([
                     'phone' => $request->phone_number
                 ]);
@@ -205,7 +218,6 @@ class AuthController extends BaseController
 
             return $this->sendResponse($userCreated, 'OTP send successfully');
         } catch (\Throwable $th) {
-            dd($th);
             Log::error(" :: GET OTP EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -246,6 +258,23 @@ class AuthController extends BaseController
 
     public function verifyOTP(Request $request)
     {
+        /* Get credentials from .env */
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+
+        // $verification = $twilio->verify->v2->services($twilio_verify_sid)
+        //     ->verificationChecks
+        //     ->create([
+        //         'to' => $request->phone_number,
+        //         "code" => $request->code
+        //     ]);
+        // if ($verification->valid) {
+        //     dd($verification);
+        // }
+
+
         $validator = Validator::make($request->all(), [
             'code' => ['required', 'numeric'],
             'email' => ['required_without:phone_number', 'email:rfc,dns'],
@@ -259,14 +288,14 @@ class AuthController extends BaseController
         try {
 
             if ($request->email) {
-                $verification = $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                $verification = $twilio->verify->v2->services($twilio_verify_sid)
                     ->verificationChecks
                     ->create([
                         'to' => $request->email,
                         "code" => $request->code
                     ]);
             } else {
-                $verification = $this->twilio->verify->v2->services($this->twilio_verify_sid)
+                $verification = $twilio->verify->v2->services($twilio_verify_sid)
                     ->verificationChecks
                     ->create([
                         'to' => $request->phone_number,
@@ -276,15 +305,19 @@ class AuthController extends BaseController
 
             if ($verification->valid) {
                 if ($verification->channel == "email") {
-                    $user = tap(User::where('email', $request->email))->update(['isVerified' => true]);
+                    tap(User::where('email', $request->email))->update(['isVerified' => true]);
+                    $getUser = User::where('email', '=', $request->email)->first();
                 } else {
-                    $user = tap(User::where('phone', $request->phone_number))->update(['isVerified' => true]);
+                    tap(User::where('phone', $request->phone_number))->update(['isVerified' => true]);
+                    $getUser = User::where('phone', '=', $request->phone_number)->first();
                 }
-                $token = $user->createToken('my-assam-token')->plainTextToken;
+
+                Auth::login($getUser, true);
+                $token = $getUser->createToken('MyApp')->plainTextToken;
 
                 $response = [
                     'success' => true,
-                    'data'    => $user,
+                    'data'    => $getUser,
                     'token'    => $token,
                     'message' => 'OTP verified successfully',
                 ];
