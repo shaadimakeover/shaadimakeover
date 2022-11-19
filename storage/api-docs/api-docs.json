@@ -11,8 +11,8 @@
                 "tags": [
                     "Auth Management"
                 ],
-                "summary": "User Social Login",
-                "description": "User Social Login here",
+                "summary": "Social login",
+                "description": "Social login here",
                 "operationId": "Social Login",
                 "requestBody": {
                     "content": {
@@ -23,35 +23,25 @@
                                     "email",
                                     "provider",
                                     "provider_id",
-                                    "device_type",
-                                    "device_token"
+                                    "subscription_id"
                                 ],
                                 "properties": {
                                     "name": {
                                         "type": "text"
                                     },
-                                    "provider": {
-                                        "type": "text",
-                                        "enum": [
-                                            "google",
-                                            "facebook",
-                                            "instagram"
-                                        ]
-                                    },
                                     "email": {
                                         "type": "text"
                                     },
-                                    "provider_id": {
+                                    "phone": {
+                                        "type": "integer"
+                                    },
+                                    "avatar": {
+                                        "type": "file"
+                                    },
+                                    "provider": {
                                         "type": "text"
                                     },
-                                    "device_type": {
-                                        "type": "text",
-                                        "enum": [
-                                            "ios",
-                                            "android"
-                                        ]
-                                    },
-                                    "device_token": {
+                                    "provider_id": {
                                         "type": "text"
                                     }
                                 },
@@ -65,7 +55,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Login successfully.",
+                        "description": "Social login successfully done",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -76,52 +66,243 @@
                         "description": "Bad request"
                     },
                     "404": {
-                        "description": "Login failed!"
+                        "description": "Resource Not Found"
                     }
                 }
             }
         },
-        "/api/register": {
+        "/api/get-otp": {
             "post": {
                 "tags": [
                     "Auth Management"
                 ],
-                "summary": "User Register",
-                "description": "User Register here",
-                "operationId": "Register",
+                "summary": "Get OTP",
+                "description": "Get otp here",
+                "operationId": "Get OTP",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "name",
                                     "email",
-                                    "phone",
-                                    "location",
-                                    "user_type",
+                                    "phone_number",
+                                    "request_type"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "email"
+                                    },
+                                    "phone_number": {
+                                        "type": "integer"
+                                    },
+                                    "request_type": {
+                                        "type": "text",
+                                        "enum": [
+                                            "login",
+                                            "register",
+                                            "reset_password"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Get OTP retrieve successfully done",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/verify-otp": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "Verify OTP",
+                "description": "Verify otp here",
+                "operationId": "Verify OTP",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "code",
+                                    "email",
+                                    "phone_number"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "integer"
+                                    },
+                                    "email": {
+                                        "type": "email"
+                                    },
+                                    "phone_number": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Get OTP retrieve successfully done",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/reset-password/{user_id}": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "Reset Password",
+                "description": "Reset Password here",
+                "operationId": "Reset Password",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
                                     "password",
                                     "confirm_password"
                                 ],
                                 "properties": {
-                                    "name": {
+                                    "password": {
+                                        "type": "password"
+                                    },
+                                    "confirm_password": {
+                                        "type": "confirm_password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Get OTP retrieve successfully done",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/update-profile/{user_id}": {
+            "post": {
+                "tags": [
+                    "User Details"
+                ],
+                "summary": "Update profile",
+                "description": "Update profile here",
+                "operationId": "Update profile",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "user_name",
+                                    "zip_code",
+                                    "state_id",
+                                    "subscription_id",
+                                    "profile_photo",
+                                    "password",
+                                    "confirm_password"
+                                ],
+                                "properties": {
+                                    "first_name": {
                                         "type": "text"
                                     },
-                                    "email": {
-                                        "description": "optional",
-                                        "type": "string"
+                                    "last_name": {
+                                        "type": "text"
                                     },
-                                    "phone": {
+                                    "user_name": {
+                                        "type": "text"
+                                    },
+                                    "zip_code": {
+                                        "type": "text"
+                                    },
+                                    "state_id": {
                                         "type": "integer"
                                     },
-                                    "location": {
-                                        "type": "text"
+                                    "category_ids": {
+                                        "type": "integer"
                                     },
-                                    "user_type": {
-                                        "type": "text",
-                                        "enum": [
-                                            "customer",
-                                            "artist"
-                                        ]
+                                    "subscription_id": {
+                                        "type": "integer"
+                                    },
+                                    "profile_photo": {
+                                        "type": "file"
                                     },
                                     "password": {
                                         "type": "password"
@@ -140,92 +321,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Register Successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "404": {
-                        "description": "Resource Not Found"
-                    }
-                }
-            }
-        },
-        "/api/login": {
-            "post": {
-                "tags": [
-                    "Auth Management"
-                ],
-                "summary": "User Login",
-                "description": "Login User Here",
-                "operationId": "authLogin",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "description": "email or phone",
-                                        "type": "text"
-                                    },
-                                    "password": {
-                                        "type": "password"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Login Successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "404": {
-                        "description": "Resource Not Found"
-                    }
-                }
-            }
-        },
-        "/api/user": {
-            "get": {
-                "tags": [
-                    "User Details"
-                ],
-                "summary": "User Details Fetch",
-                "description": "Get User Details ",
-                "operationId": "User Details",
-                "responses": {
-                    "201": {
-                        "description": "Register Successfully",
+                        "description": "Get OTP retrieve successfully done",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -244,56 +340,6 @@
                         "sanctum": []
                     }
                 ]
-            }
-        },
-        "/api/otp-verify": {
-            "post": {
-                "tags": [
-                    "Auth Management"
-                ],
-                "summary": "User Otp Verify",
-                "description": "User Otp Verify here",
-                "operationId": "Otp Verify",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "otp",
-                                    "user_id"
-                                ],
-                                "properties": {
-                                    "otp": {
-                                        "type": "text"
-                                    },
-                                    "user_id": {
-                                        "type": "number"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {}
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Otp verify successfully.",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "404": {
-                        "description": "'otp invalid!"
-                    }
-                }
             }
         }
     },

@@ -205,6 +205,7 @@ class AuthController extends BaseController
 
             return $this->sendResponse($userCreated, 'OTP send successfully');
         } catch (\Throwable $th) {
+            dd($th);
             Log::error(" :: GET OTP EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
