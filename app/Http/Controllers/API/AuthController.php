@@ -13,19 +13,19 @@ use Twilio\Rest\Client;
 
 class AuthController extends BaseController
 {
-    public $twilio;
-    public $twilio_auth_token;
-    public $twilio_sid;
-    public $twilio_verify_sid;
+    // public $twilio;
+    // public $twilio_auth_token;
+    // public $twilio_sid;
+    // public $twilio_verify_sid;
 
-    function _construct()
-    {
-        //Get twilio credentials from .env
-        $this->twilio_auth_token = getenv("TWILIO_AUTH_TOKEN");
-        $this->twilio_sid = getenv("TWILIO_ACCOUNT_SID");
-        $this->twilio_verify_sid = getenv("TWILIO_VERIFICATION_SID");
-        $this->twilio = new Client($this->twilio_sid, $this->twilio_auth_token);
-    }
+    // function _construct()
+    // {
+    //     //Get twilio credentials from .env
+    //     $this->twilio_auth_token = getenv("TWILIO_AUTH_TOKEN");
+    //     $this->twilio_sid = getenv("TWILIO_ACCOUNT_SID");
+    //     $this->twilio_verify_sid = getenv("TWILIO_VERIFICATION_SID");
+    //     $this->twilio = new Client($this->twilio_sid, $this->twilio_auth_token);
+    // }
 
     /**
      * @OA\Post(
@@ -270,7 +270,6 @@ class AuthController extends BaseController
         // if ($verification->valid) {
         //     dd($verification);
         // }
-
 
         $validator = Validator::make($request->all(), [
             'code' => ['required', 'string'],
