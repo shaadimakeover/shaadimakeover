@@ -2,9 +2,22 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Laravel",
-        "description": "https://laravel/api",
+        "description": "L5 Swagger OpenApi description",
+        "contact": {
+            "email": "info@shaadimakeover.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "1.0.0"
     },
+    "servers": [
+        {
+            "url": "http://127.0.01:8000",
+            "description": "API Server"
+        }
+    ],
     "paths": {
         "/api/social-login": {
             "post": {
@@ -77,23 +90,20 @@
                     "Auth Management"
                 ],
                 "summary": "Get OTP",
-                "description": "Get otp here",
+                "description": "This api for send otp in mobile or email. If you send email in body that time no need to send phone number, and if send otp in mobile sms that time no need to send email in body param.",
                 "operationId": "Get OTP",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "email",
                                     "phone_number",
                                     "request_type"
                                 ],
                                 "properties": {
-                                    "email": {
-                                        "type": "email"
-                                    },
                                     "phone_number": {
-                                        "type": "integer"
+                                        "description": "Phone number must with country code.",
+                                        "type": "string"
                                     },
                                     "request_type": {
                                         "type": "text",
@@ -143,19 +153,14 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "code",
-                                    "email",
-                                    "phone_number"
+                                    "code"
                                 ],
                                 "properties": {
                                     "code": {
-                                        "type": "integer"
-                                    },
-                                    "email": {
-                                        "type": "email"
+                                        "type": "string"
                                     },
                                     "phone_number": {
-                                        "type": "integer"
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"

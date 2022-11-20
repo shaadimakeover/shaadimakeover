@@ -131,16 +131,15 @@ class AuthController extends BaseController
      * operationId="Get OTP",
      * tags={"Auth Management"},
      * summary="Get OTP",
-     * description="Get otp here",
+     * description="This api for send otp in mobile or email. If you send email in body that time no need to send phone number, and if send otp in mobile sms that time no need to send email in body param.",
      *     @OA\RequestBody(
      *         @OA\JsonContent(),
      *         @OA\MediaType(
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"email","phone_number","request_type"},
-     *               @OA\Property(property="email", type="email"),
-     *               @OA\Property(property="phone_number", type="integer"),
+     *               required={"phone_number","request_type"},
+     *               @OA\Property(property="phone_number", type="string" ,description="Phone number must with country code."),
      *               @OA\Property(property="request_type",type="text", enum={"login","register","reset_password"})
      *
      *            ),
@@ -170,8 +169,8 @@ class AuthController extends BaseController
         // dd($response);
 
         $validator = Validator::make($request->all(), [
-            'email' => ['required_without:phone_number', 'email:rfc,dns'],
-            'phone_number' => ['required_without:email', 'numeric'],
+            //'email' => ['required_without:phone_number', 'email:rfc,dns'],
+            'phone_number' => ['required', 'string'],
             'request_type' => ['required', 'string'], //login,register,reset_password
         ]);
 
@@ -236,11 +235,9 @@ class AuthController extends BaseController
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"code","email","phone_number"},
-     *               @OA\Property(property="code", type="integer"),
-     *               @OA\Property(property="email", type="email"),
-     *               @OA\Property(property="phone_number", type="integer"),
-     *
+     *               required={"code"},
+     *               @OA\Property(property="code", type="string"),
+     *               @OA\Property(property="phone_number", type="string"),
      *            ),
      *        ),
      *    ),
@@ -276,9 +273,9 @@ class AuthController extends BaseController
 
 
         $validator = Validator::make($request->all(), [
-            'code' => ['required', 'numeric'],
-            'email' => ['required_without:phone_number', 'email:rfc,dns'],
-            'phone_number' => ['required_without:email', 'numeric']
+            'code' => ['required', 'string'],
+            //'email' => ['required_without:phone_number', 'email:rfc,dns'],
+            'phone_number' => ['required_without:email', 'string']
         ]);
 
         if ($validator->fails()) {
