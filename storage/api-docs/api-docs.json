@@ -35,8 +35,7 @@
                                     "name",
                                     "email",
                                     "provider",
-                                    "provider_id",
-                                    "subscription_id"
+                                    "provider_id"
                                 ],
                                 "properties": {
                                     "name": {
@@ -84,33 +83,107 @@
                 }
             }
         },
-        "/api/get-otp": {
+        "/api/login": {
             "post": {
                 "tags": [
                     "Auth Management"
                 ],
-                "summary": "Get OTP",
-                "description": "This api for send otp in mobile or email. If you send email in body that time no need to send phone number, and if send otp in mobile sms that time no need to send email in body param.",
-                "operationId": "Get OTP",
+                "summary": "login",
+                "description": "login here",
+                "operationId": "Login",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
                                     "phone_number",
-                                    "request_type"
+                                    "password"
                                 ],
                                 "properties": {
                                     "phone_number": {
-                                        "description": "Phone number must with country code.",
                                         "type": "string"
                                     },
-                                    "request_type": {
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Social login successfully done",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "Register with mobile or email otp verify",
+                "description": "This api for send otp in mobile or email. If you send email in body that time no need to send phone number, and if send otp in mobile sms that time no need to send email in body param.",
+                "operationId": "Register",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "phone_number",
+                                    "location",
+                                    "user_type",
+                                    "password",
+                                    "confirm_password"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "description": "First name",
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "description": "Last name",
+                                        "type": "string"
+                                    },
+                                    "phone_number": {
+                                        "description": "Phone number",
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "description": "Location",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "Password",
+                                        "type": "string"
+                                    },
+                                    "confirm_password": {
+                                        "description": "Confirm Password",
+                                        "type": "string"
+                                    },
+                                    "user_type": {
                                         "type": "text",
                                         "enum": [
-                                            "login",
-                                            "register",
-                                            "reset_password"
+                                            "user",
+                                            "artist"
                                         ]
                                     }
                                 },
@@ -140,7 +213,7 @@
                 }
             }
         },
-        "/api/verify-otp": {
+        "/api/verify": {
             "post": {
                 "tags": [
                     "Auth Management"
@@ -324,6 +397,37 @@
                         }
                     }
                 },
+                "responses": {
+                    "201": {
+                        "description": "Get OTP retrieve successfully done",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "User Details"
+                ],
+                "summary": "Update profile",
+                "description": "Logout profile here",
+                "operationId": "User logout",
                 "responses": {
                     "201": {
                         "description": "Get OTP retrieve successfully done",

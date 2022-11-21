@@ -19,15 +19,16 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('email')->unique()->nullable();
             $table->string('phone')->nullable()->unique();
-            $table->longtext('address')->nullable();
+            $table->text('address')->nullable();
+            $table->string('location')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->rememberToken();
             $table->string('profile_photo_path', 2048)->nullable();
-            $table->boolean('active')->default(true);
             $table->string('otp')->nullable();
             $table->boolean('is_terms_conditions')->default(true);
             $table->boolean('isVerified')->default(false);
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }

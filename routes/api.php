@@ -18,14 +18,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::controller(AuthController::class)->group(function () {
-    Route::post('get-otp', 'getOTP');
-    Route::post('verify-otp', 'verifyOTP');
+    Route::post('login', 'login');
+    Route::post('register', 'register');
+    Route::post('verify', 'verify');
     Route::post('social-login', 'socialLogin');
     Route::post('reset-password/{user_id}', 'resetPassword');
 });
 Route::middleware('auth:api')->group(function () {
     Route::controller(HomeController::class)->group(function () {
         Route::get('user', 'getUserDetails');
+        Route::get('logout', 'logout');
         Route::post('update-profile/{user_id}', 'updateProfile');
     });
 });

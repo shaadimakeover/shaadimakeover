@@ -19,7 +19,7 @@ class HomeController extends BaseController
      * operationId="Update profile",
      * tags={"User Details"},
      * summary="Update profile",
-     *   security={{"sanctum":{}}},
+     * security={{"sanctum":{}}},
      * description="Update profile here",
      * @OA\Parameter(
      *          name="user_id",
@@ -121,7 +121,35 @@ class HomeController extends BaseController
 
     public function getUserDetails()
     {
-     
+
         return Auth::user();
+    }
+
+    /**
+     * @OA\Post(
+     * path="/api/logout",
+     * operationId="User logout",
+     * tags={"User Details"},
+     * summary="Logout profile",
+     * security={{"sanctum":{}}},
+     * description="Logout profile here",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Get OTP retrieve successfully done",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function logout()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            $user->tokens()->delete();
+
+            return $this->sendResponse(null, 'Logout successfully.');
+        }
     }
 }
