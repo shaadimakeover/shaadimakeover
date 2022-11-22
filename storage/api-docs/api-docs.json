@@ -421,11 +421,11 @@
             }
         },
         "/api/logout": {
-            "post": {
+            "get": {
                 "tags": [
                     "User Details"
                 ],
-                "summary": "Update profile",
+                "summary": "Logout profile",
                 "description": "Logout profile here",
                 "operationId": "User logout",
                 "responses": {

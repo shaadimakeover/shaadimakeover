@@ -126,7 +126,7 @@ class HomeController extends BaseController
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      * path="/api/logout",
      * operationId="User logout",
      * tags={"User Details"},

@@ -236,8 +236,8 @@ class AuthController extends BaseController
         $validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],
-            'email' => ['required_without:phone_number', 'email:rfc,dns'],
-            'phone_number' => ['required_without:email', 'string'],
+            'email' => ['required_without:phone_number', 'email:rfc,dns','unique:users,email'],
+            'phone_number' => ['required_without:email', 'string','unique:users,phone'],
             'location' => ['required', 'string'],
             'user_type' => ['required', 'in:artist,user'],
             'password' => ['required', 'string'],
@@ -341,16 +341,6 @@ class AuthController extends BaseController
         $twilio_sid = getenv("TWILIO_SID");
         $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
         $twilio = new Client($twilio_sid, $token);
-
-        // $verification = $twilio->verify->v2->services($twilio_verify_sid)
-        //     ->verificationChecks
-        //     ->create([
-        //         'to' => $request->phone_number,
-        //         "code" => $request->code
-        //     ]);
-        // if ($verification->valid) {
-        //     dd($verification);
-        // }
 
         $validator = Validator::make($request->all(), [
             'code' => ['required', 'string'],
