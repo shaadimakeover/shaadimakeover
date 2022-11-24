@@ -36,15 +36,13 @@ class HomeController extends BaseController
      *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"first_name","last_name","user_name","zip_code","state_id","subscription_id","profile_photo","password","confirm_password"},
+     *               required={"first_name","last_name","location","user_type","is_accept_terms_conditions","password","confirm_password"},
      *               @OA\Property(property="first_name", type="text"),
      *               @OA\Property(property="last_name", type="text"),
-     *               @OA\Property(property="user_name", type="text"),
-     *               @OA\Property(property="zip_code", type="text"),
-     *               @OA\Property(property="state_id", type="integer"),
-     *               @OA\Property(property="category_ids", type="integer"),
-     *               @OA\Property(property="subscription_id", type="integer"),
-     *               @OA\Property(property="profile_photo", type="file"),
+     *               @OA\Property(property="email", type="email"),
+     *               @OA\Property(property="location", type="text"),
+     *               @OA\Property(property="user_type", type="string", enum={"user","artist"}),
+     *               @OA\Property(property="is_accept_terms_conditions", type="string", enum={"true","false"}),
      *               @OA\Property(property="password", type="password"),
      *               @OA\Property(property="confirm_password", type="password"),
      *            ),
@@ -63,14 +61,12 @@ class HomeController extends BaseController
     public function updateProfile(Request $request, $user_id)
     {
         $validator = Validator::make($request->all(), [
-            "first_name"  =>  "required",
-            "last_name"  =>  "required",
-            "user_name"  =>  "required",
-            "zip_code"  =>  "required",
-            "state_id"  =>  "required",
-            "category_ids"  =>  "nullable|array",
-            "subscription_id"  =>  "required",
-            "profile_photo" => "required",
+            'first_name' => ['required', 'string'],
+            'last_name' => ['required', 'string'],
+            'email' => ['nullable', 'email:rfc,dns', 'unique:users,email'],
+            'location' => ['required', 'string'],
+            'user_type' => ['required', 'in:artist,user'],
+            'is_accept_terms_conditions' => ['required', 'in:true,false'],
             "password"  =>  "required",
             "confirm_password"  =>  "required|same:password",
         ]);
@@ -82,33 +78,34 @@ class HomeController extends BaseController
         DB::beginTransaction();
         try {
 
-            $final_image_url = "";
-            if ($request->hasFile('profile_photo')) {
-                $file = $request->file('profile_photo');
-                $path = 'profile';
-                $final_image_url = ImageHelper::customSaveImage($file, $path);
-                //dd($image_url);
-            }
+            // $final_image_url = "";
+            // if ($request->hasFile('profile_photo')) {
+            //     $file = $request->file('profile_photo');
+            //     $path = 'profile';
+            //     $final_image_url = ImageHelper::customSaveImage($file, $path);
+            //     //dd($image_url);
+            // }
             $user = User::where('id', $user_id)
                 ->update([
-                    'country_id' => $request->country_id,
-                    'state_id' => $request->state_id,
-                    'subscription_id' => $request->subscription_id,
                     'first_name' => $request->first_name,
                     'last_name' => $request->last_name,
-                    'username' => $request->username,
-                    'zip_code' => $request->zip_code,
-                    'profile_photo_path' => $final_image_url,
-                    'is_online' => true,
+                    'email' => $request->email,
+                    'location' => $request->location,
+                    //'profile_photo_path' => $final_image_url,
+                    'is_terms_conditions' => $request->is_accept_terms_conditions == "true" ? true : false,
                     'isProfileCompleted' => true,
                     "password" => $request->password
                 ]);
 
-            //$user->assignRole('USER');
             if (!is_null($user)) {
-                $user->assignRole('USER');
+                $getUser = User::find($user_id);
+                // if ($request->user_type == 'artist') {
+                //     $getUser->assignRole('ARTIST');
+                // } else {
+                //     $getUser->assignRole('USER');
+                // }
                 DB::commit();
-                return $this->sendResponse($user, 'Registration successfully.', 200);
+                return $this->sendResponse($getUser, 'Registration successfully.', 200);
             } else {
                 return $this->sendError('Registration failed!', [], 400);
             }
@@ -117,12 +114,6 @@ class HomeController extends BaseController
             Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
-    }
-
-    public function getUserDetails()
-    {
-
-        return Auth::user();
     }
 
     /**
@@ -151,5 +142,11 @@ class HomeController extends BaseController
 
             return $this->sendResponse(null, 'Logout successfully.');
         }
+    }
+
+
+    public function getUserDetails()
+    {
+        return Auth::user();
     }
 }

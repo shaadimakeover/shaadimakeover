@@ -213,7 +213,63 @@
                 }
             }
         },
-        "/api/verify": {
+        "/api/get-otp": {
+            "post": {
+                "tags": [
+                    "Auth Management"
+                ],
+                "summary": "Get OTP",
+                "description": "This api for send otp in mobile or email. If you send email in body that time no need to send phone number, and if send otp in mobile sms that time no need to send email in body param.",
+                "operationId": "Get OTP",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "phone_number",
+                                    "request_type"
+                                ],
+                                "properties": {
+                                    "phone_number": {
+                                        "description": "Phone number must with country code.",
+                                        "type": "string"
+                                    },
+                                    "request_type": {
+                                        "type": "text",
+                                        "enum": [
+                                            "login",
+                                            "register",
+                                            "reset_password"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Get OTP retrieve successfully done",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/verify-otp": {
             "post": {
                 "tags": [
                     "Auth Management"
@@ -226,7 +282,8 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "code"
+                                    "code",
+                                    "phone_number"
                                 ],
                                 "properties": {
                                     "code": {
@@ -349,11 +406,9 @@
                                 "required": [
                                     "first_name",
                                     "last_name",
-                                    "user_name",
-                                    "zip_code",
-                                    "state_id",
-                                    "subscription_id",
-                                    "profile_photo",
+                                    "location",
+                                    "user_type",
+                                    "is_accept_terms_conditions",
                                     "password",
                                     "confirm_password"
                                 ],
@@ -364,23 +419,25 @@
                                     "last_name": {
                                         "type": "text"
                                     },
-                                    "user_name": {
+                                    "email": {
+                                        "type": "email"
+                                    },
+                                    "location": {
                                         "type": "text"
                                     },
-                                    "zip_code": {
-                                        "type": "text"
+                                    "user_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "user",
+                                            "artist"
+                                        ]
                                     },
-                                    "state_id": {
-                                        "type": "integer"
-                                    },
-                                    "category_ids": {
-                                        "type": "integer"
-                                    },
-                                    "subscription_id": {
-                                        "type": "integer"
-                                    },
-                                    "profile_photo": {
-                                        "type": "file"
+                                    "is_accept_terms_conditions": {
+                                        "type": "boolean",
+                                        "enum": [
+                                            "true",
+                                            "false"
+                                        ]
                                     },
                                     "password": {
                                         "type": "password"

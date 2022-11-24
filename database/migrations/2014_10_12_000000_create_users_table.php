@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('otp')->nullable();
             $table->boolean('is_terms_conditions')->default(true);
             $table->boolean('isVerified')->default(false);
+            $table->boolean('isProfileCompleted')->default(false);
             $table->boolean('active')->default(true);
             $table->timestamps();
         });
