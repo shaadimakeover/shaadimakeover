@@ -22,17 +22,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 //Frontend Route
-Route::get('/', [HomeController::class, 'home']);
-Route::get('user-login', [HomeController::class, 'login'])->name('login.get');
-Route::get('user-register', [HomeController::class, 'register'])->name('register.get');
+// Route::get('/', [HomeController::class, 'home']);
+// Route::get('user-login', [HomeController::class, 'login'])->name('login.get');
+// Route::get('user-register', [HomeController::class, 'register'])->name('register.get');
 
-Route::group(['middleware' => 'auth'], function () {
-    Route::controller(HomeController::class)->group(function () {
-        Route::get('/dashboard', 'getDashboard')->name('dashboard');
-        Route::get('/profile', 'getProfile')->name('profile');
-        Route::get('/logout', 'logout')->name('user.logout');
-    });
-});
+// Route::group(['middleware' => 'auth'], function () {
+//     Route::controller(HomeController::class)->group(function () {
+//         Route::get('/dashboard', 'getDashboard')->name('dashboard');
+//         Route::get('/profile', 'getProfile')->name('profile');
+//         Route::get('/logout', 'logout')->name('user.logout');
+//     });
+// });
 
 //Admin Routes
 Route::redirect('/', 'admin/dashboard');
