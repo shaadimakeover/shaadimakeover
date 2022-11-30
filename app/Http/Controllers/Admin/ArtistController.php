@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class VendorController extends Controller
+class ArtistController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +17,7 @@ class VendorController extends Controller
     public function index()
     {
         try {
-            return view('admin.vendor.list');
+            return view('admin.artist.list');
         } catch (\Exception $e) {
             Log::error(" :: EXCEPTION :: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             //return redirect()->back()->with('error', "Something went wrong, please try again!");
@@ -33,7 +33,7 @@ class VendorController extends Controller
     public function create()
     {
         try {
-            return view('admin.vendor.create-edit', ['vendor' => null]);
+            return view('admin.artist.create-edit', ['artist' => null]);
         } catch (\Exception $e) {
             Log::error(" :: EXCEPTION :: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             //return redirect()->back()->with('error', "Something went wrong, please try again!");
@@ -60,7 +60,10 @@ class VendorController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::where('id', $id)->first();
+        if ($user) {
+            return view('admin.artist.view', compact('user'));
+        }
     }
 
     /**
@@ -69,10 +72,10 @@ class VendorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $vendor)
+    public function edit(User $artist)
     {
         try {
-            return view('admin.vendor.create-edit', compact('vendor'));
+            return view('admin.artist.create-edit', compact('artist'));
         } catch (\Exception $e) {
             Log::error(" :: EXCEPTION :: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             //return redirect()->back()->with('error', "Something went wrong, please try again!");

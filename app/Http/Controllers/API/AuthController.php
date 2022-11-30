@@ -156,10 +156,15 @@ class AuthController extends BaseController
             if ($request->email) {
                 if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                     $getUser = User::where('email', $request->email)->first();
-                    Auth::login($getUser, true);
                     $token = $getUser->createToken('MyApp')->plainTextToken;
 
-                    return $this->sendResponse($token, 'login successfully');
+                    $response = [
+                        'success' => true,
+                        'data'    => $getUser,
+                        'token'    => $token,
+                        'message' => 'Login successfully',
+                    ];
+                    return response()->json($response, 200);
                 } else {
                     return $this->sendError('Invalid Credential.');
                 }
@@ -167,13 +172,14 @@ class AuthController extends BaseController
 
                 if (Auth::attempt(['phone' => $request->phone_number, 'password' => $request->password])) {
                     $getUser = User::where('phone', $request->phone_number)->first();
-                    Auth::login($getUser, true);
+                    // Auth::login($getUser, true);
                     $token = $getUser->createToken('MyApp')->plainTextToken;
+
                     $response = [
                         'success' => true,
                         'data'    => $getUser,
                         'token'    => $token,
-                        'message' => 'OTP verified successfully',
+                        'message' => 'Login successfully',
                     ];
                     return response()->json($response, 200);
                 } else {
@@ -353,9 +359,11 @@ class AuthController extends BaseController
             $userCreated = User::firstOrCreate([
                 'phone' => $request->phone_number
             ]);
+            // dd($userCreated);
 
             return $this->sendResponse($userCreated, 'OTP send successfully');
         } catch (\Throwable $th) {
+            dd($th);
             Log::error(" :: GET OTP EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -420,7 +428,7 @@ class AuthController extends BaseController
             if ($verification->valid) {
                 tap(User::where('phone', $request->phone_number))->update(['isVerified' => true]);
                 $getUser = User::where('phone', '=', $request->phone_number)->first();
-                Auth::login($getUser, true);
+                //Auth::login($getUser, true);
                 $token = $getUser->createToken('MyApp')->plainTextToken;
 
                 $response = [

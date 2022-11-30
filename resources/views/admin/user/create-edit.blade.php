@@ -1,4 +1,4 @@
-<x-admin-layout title="User Management">
+<x-admin-layout title="Customer Management">
     <x-slot name="subHeader">
         <x-admin.sub-header headerTitle="{{ $user ? 'Edit' : 'Add' }} User">
             <x-admin.breadcrumbs>

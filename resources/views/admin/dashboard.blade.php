@@ -7,7 +7,7 @@
     <div class="kt-portlet">
         <div class="kt-portlet__body  kt-portlet__body--fit">
             <div class="row row-no-padding row-col-separator-xl">
-                <div class="col-md-12 col-lg-6 col-xl-4">
+                <div class="col-md-12 col-lg-4 col-xl-4">
                     <div class="kt-widget24">
                         <div class="kt-widget24__details">
                             <div class="kt-widget24__info">
@@ -34,7 +34,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12 col-lg-6 col-xl-4">
+                <div class="col-md-12 col-lg-4 col-xl-4">
                     <div class="kt-widget24">
                         <div class="kt-widget24__details">
                             <div class="kt-widget24__info">
@@ -62,7 +62,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12 col-lg-6 col-xl-4">
+                <div class="col-md-12 col-lg-4 col-xl-4">
                     <div class="kt-widget24">
                         <div class="kt-widget24__details">
                             <div class="kt-widget24__info">
@@ -93,7 +93,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-md-6">
             <div class="kt-portlet kt-portlet--height-fluid ">
                 <div class="kt-portlet__head">
@@ -224,8 +224,8 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
+    </div> --}}
+    {{-- <div class="row">
         <div class="col-md-6 col-lg-6 col-xl-6">
             <div class="kt-portlet">
                 <canvas id="myChart" style="width:100%;max-width:600px" width="703" height="351"></canvas>
@@ -236,7 +236,7 @@
                 <canvas id="myChart2" style="width:100%;max-width:600px" width="703" height="351"></canvas>
             </div>
         </div>
-    </div>
+    </div> --}}
     <div class="kt-portlet">
         <div class="kt-portlet__head">
             <div class="kt-portlet__head-label">

@@ -6,8 +6,7 @@
         <div class="kt-aside__brand-logo">
             <a href="{{ route('admin.dashboard') }}" class="logo_text_custom">
                 {{-- <span>{{ config('app.name', 'Laravel') }}</span> --}}
-                <img src="{{ asset('admin_assets/logo/logo.png') }}" alt="" width="75%"
-                    style="padding: 10px">
+                <img src="{{ asset('admin_assets/logo/logo.png') }}" alt="" style="padding: 4px">
             </a>
         </div>
         <div class="kt-aside__brand-tools">
@@ -63,7 +62,7 @@
                 </li>
 
                 <li class="kt-menu__section ">
-                    <h4 class="kt-menu__section-text">User Management</h4>
+                    <h4 class="kt-menu__section-text">Customer Management</h4>
                     <i class="kt-menu__section-icon flaticon-more-v2">
 
                     </i>
@@ -77,63 +76,11 @@
                     </a>
                 </li>
 
-                <li class="kt-menu__section ">
-                    <h4 class="kt-menu__section-text">Vendor Management</h4>
-                    <i class="kt-menu__section-icon flaticon-more-v2">
-
-                    </i>
-                </li>
-
-                <li class="kt-menu__item  {{ Request::is('admin/vendors*') ? 'kt-menu__item--active' : '' }}"
+                <li class="kt-menu__item  {{ Request::is('admin/artists*') ? 'kt-menu__item--active' : '' }}"
                     aria-haspopup="true">
-                    <a href="{{ route('vendors.index') }}" class="kt-menu__link ">
+                    <a href="{{ route('artists.index') }}" class="kt-menu__link ">
                         <i class="kt-menu__link-icon fa fa-users"></i>
-                        <span class="kt-menu__link-text">Vendors</span>
-                    </a>
-                </li>
-
-                <li class="kt-menu__section ">
-                    <h4 class="kt-menu__section-text">Category Management</h4>
-                    <i class="kt-menu__section-icon flaticon-more-v2">
-
-                    </i>
-                </li>
-
-                <li class="kt-menu__item  {{ Request::is('admin/category*') ? 'kt-menu__item--active' : '' }}"
-                    aria-haspopup="true">
-                    <a href="{{ route('category.index') }}" class="kt-menu__link ">
-                        <i class="kt-menu__link-icon fa fa-list"></i>
-                        <span class="kt-menu__link-text">Categories</span>
-                    </a>
-                </li>
-
-                <li class="kt-menu__section ">
-                    <h4 class="kt-menu__section-text">Brand Management</h4>
-                    <i class="kt-menu__section-icon flaticon-more-v2">
-
-                    </i>
-                </li>
-
-                <li class="kt-menu__item  {{ Request::is('admin/brand*') ? 'kt-menu__item--active' : '' }}"
-                    aria-haspopup="true">
-                    <a href="{{ route('brand.index') }}" class="kt-menu__link ">
-                        <i class="kt-menu__link-icon fa fa-list"></i>
-                        <span class="kt-menu__link-text">Brand</span>
-                    </a>
-                </li>
-
-                <li class="kt-menu__section ">
-                    <h4 class="kt-menu__section-text">Product Management</h4>
-                    <i class="kt-menu__section-icon flaticon-more-v2">
-
-                    </i>
-                </li>
-
-                <li class="kt-menu__item  {{ Request::is('admin/product*') ? 'kt-menu__item--active' : '' }}"
-                    aria-haspopup="true">
-                    <a href="{{ route('product.index') }}" class="kt-menu__link ">
-                        <i class="kt-menu__link-icon fa fa-list"></i>
-                        <span class="kt-menu__link-text">Products</span>
+                        <span class="kt-menu__link-text">Artist</span>
                     </a>
                 </li>
 

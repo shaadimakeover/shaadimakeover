@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Admin\Vendor;
+namespace App\Http\Livewire\Admin\Artist;
 
 use Livewire\Component;
 use App\Models\User;
@@ -8,7 +8,7 @@ use Livewire\WithPagination;
 use App\Http\Livewire\Traits\WithSorting;
 use App\Http\Livewire\Traits\AlertMessage;
 
-class VendorList extends Component
+class ArtistList extends Component
 {
     use WithPagination;
     use WithSorting;
@@ -67,10 +67,10 @@ class VendorList extends Component
         if ($this->searchStatus >= 0)
             $userQuery->where('active', $this->searchStatus);
 
-        return view('livewire.admin.vendor.vendor-list', [
-            'vendors' => $userQuery
+        return view('livewire.admin.artist.artist-list', [
+            'artists' => $userQuery
                 ->orderBy($this->sortBy, $this->sortDirection)
-                ->role('VENDOR')
+                ->role('ARTIST')
                 ->paginate($this->perPage)
         ]);
     }

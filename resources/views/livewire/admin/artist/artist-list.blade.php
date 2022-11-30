@@ -69,7 +69,7 @@
     </x-slot>
 
     <x-slot name="tbody">
-        @forelse($vendors as $user)
+        @forelse($artists as $user)
             <tr role="row" class="odd">
                 <td class="sorting_1" tabindex="0">
                     <div class="kt-user-card-v2">
@@ -92,10 +92,10 @@
                         wire:click="changeStatusConfirm({{ $user->id }})">{{ $user->active == 1 ? 'Active' : 'Inactive' }}</span>
                 </td>
                 <x-admin.td-action>
-                    <a class="dropdown-item" href="{{ route('vendors.edit',['vendor'=>$user->id]) }}"><i
-                            class="la la-edit"></i> Edit</a>
-                    <button href="#" class="dropdown-item" wire:click="deleteAttempt({{ $user->id }})"><i
-                            class="fa fa-trash"></i> Delete</button>
+                    <a class="dropdown-item" href="{{ route('artists.show',['artist'=>$user->id]) }}"><i
+                            class="la la-eye"></i> View</a>
+                    {{-- <button href="#" class="dropdown-item" wire:click="deleteAttempt({{ $user->id }})"><i
+                            class="fa fa-trash"></i> Delete</button> --}}
                 </x-admin.td-action>
             </tr>
         @empty
@@ -105,10 +105,10 @@
         @endforelse
     </x-slot>
     <x-slot name="pagination">
-        {{ $vendors->links() }}
+        {{ $artists->links() }}
     </x-slot>
     <x-slot name="showingEntries">
-        Showing {{ $vendors->firstitem() ?? 0 }} to {{ $vendors->lastitem() ?? 0 }} of {{ $vendors->total() }}
+        Showing {{ $artists->firstitem() ?? 0 }} to {{ $artists->lastitem() ?? 0 }} of {{ $artists->total() }}
         entries
     </x-slot>
 </x-admin.table>

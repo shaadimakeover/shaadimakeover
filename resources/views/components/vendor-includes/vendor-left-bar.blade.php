@@ -62,7 +62,7 @@
                 </li>
 
                 {{-- <li class="kt-menu__section ">
-                    <h4 class="kt-menu__section-text">User Management</h4>
+                    <h4 class="kt-menu__section-text">Customer Management</h4>
                     <i class="kt-menu__section-icon flaticon-more-v2">
 
                     </i>

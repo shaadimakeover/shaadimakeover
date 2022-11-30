@@ -99,15 +99,15 @@ class HomeController extends BaseController
 
             if (!is_null($user)) {
                 $getUser = User::find($user_id);
-                // if ($request->user_type == 'artist') {
-                //     $getUser->assignRole('ARTIST');
-                // } else {
-                //     $getUser->assignRole('USER');
-                // }
+                if ($request->user_type == 'artist') {
+                    $getUser->assignRole('ARTIST');
+                } else {
+                    $getUser->assignRole('USER');
+                }
                 DB::commit();
-                return $this->sendResponse($getUser, 'Registration successfully.', 200);
+                return $this->sendResponse($getUser, 'Your profile update successfully.', 200);
             } else {
-                return $this->sendError('Registration failed!', [], 400);
+                return $this->sendError('Your profile update failed!', [], 400);
             }
         } catch (\Throwable $th) {
             DB::rollBack();

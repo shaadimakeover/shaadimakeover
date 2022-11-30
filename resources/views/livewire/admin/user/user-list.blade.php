@@ -84,23 +84,23 @@
                             </div>
                         </div>
                         <div class="kt-user-card-v2__details">
-                            <span class="kt-user-card-v2__name">{{ $user->full_name }}</span>
+                            <span class="kt-user-card-v2__name">{{ $user->full_name??'Null' }}</span>
                             <a href="#" class="kt-user-card-v2__email kt-link">Member since
                                 {{ $user->created_at->diffForHumans(null, true) . ' ' }}</a>
                         </div>
                     </div>
                 </td>
-                <td><a class="kt-link" href="mailto:adingate15@furl.net">{{ $user->email }}</a></td>
+                <td><a class="kt-link" href="mailto:adingate15@furl.net">{{ $user->email??"Null" }}</a></td>
                 <td>{{ $user->phone }}</td>
                 <td class="align-center"><span
                         class="kt-badge  kt-badge--{{ $user->active == 1 ? 'success' : 'warning' }} kt-badge--inline kt-badge--pill cursor-pointer"
                         wire:click="changeStatusConfirm({{ $user->id }})">{{ $user->active == 1 ? 'Active' : 'Inactive' }}</span>
                 </td>
                 <x-admin.td-action>
-                    <a class="dropdown-item" href="{{ route('users.edit', ['user' => $user->id]) }}"><i
-                            class="la la-edit"></i> Edit</a>
-                    <button href="#" class="dropdown-item" wire:click="deleteAttempt({{ $user->id }})"><i
-                            class="fa fa-trash"></i> Delete</button>
+                    <a class="dropdown-item" href="{{ route('users.show', ['user' => $user->id]) }}"><i
+                            class="la la-eye"></i> View</a>
+                    {{-- <button href="#" class="dropdown-item" wire:click="deleteAttempt({{ $user->id }})"><i
+                            class="fa fa-trash"></i> Delete</button> --}}
                 </x-admin.td-action>
             </tr>
         @empty
