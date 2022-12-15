@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.01:8000",
+            "url": "http://127.0.0.1:8000",
             "description": "API Server"
         }
     ],
@@ -433,7 +433,7 @@
                                         ]
                                     },
                                     "is_accept_terms_conditions": {
-                                        "type": "boolean",
+                                        "type": "string",
                                         "enum": [
                                             "true",
                                             "false"
@@ -506,6 +506,84 @@
                         "sanctum": []
                     }
                 ]
+            }
+        },
+        "/api/banner-image": {
+            "get": {
+                "tags": [
+                    "Banner Details"
+                ],
+                "summary": "Banner Image Fetch",
+                "description": "Get Banner Image ",
+                "operationId": "Banner",
+                "responses": {
+                    "201": {
+                        "description": "Banner retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/category": {
+            "get": {
+                "tags": [
+                    "Category Details"
+                ],
+                "summary": "Category Image Fetch",
+                "description": "Get category details ",
+                "operationId": "Category",
+                "responses": {
+                    "201": {
+                        "description": "category details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/top-artist": {
+            "get": {
+                "tags": [
+                    "Top Artist Details"
+                ],
+                "summary": "Top Artist Fetch",
+                "description": "Get Top Artist details ",
+                "operationId": "Top Artist",
+                "responses": {
+                    "201": {
+                        "description": "Top Artist details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
             }
         }
     },

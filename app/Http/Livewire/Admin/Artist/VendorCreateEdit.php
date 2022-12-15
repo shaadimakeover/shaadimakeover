@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Admin\Vendor;
+namespace App\Http\Livewire\Admin\Artist;
 
 use Livewire\Component;
 use App\Http\Livewire\Traits\AlertMessage;

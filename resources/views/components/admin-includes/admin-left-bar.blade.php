@@ -84,6 +84,14 @@
                     </a>
                 </li>
 
+                <li class="kt-menu__item  {{ Request::is('admin/banners*') ? 'kt-menu__item--active' : '' }}"
+                aria-haspopup="true">
+                <a href="{{ route('banners.index') }}" class="kt-menu__link ">
+                    <i class="kt-menu__link-icon fa fa-users"></i>
+                    <span class="kt-menu__link-text">Banner</span>
+                </a>
+            </li>
+
                 <li class="kt-menu__section ">
                     <h4 class="kt-menu__section-text">Content Management</h4>
                     <i class="kt-menu__section-icon flaticon-more-v2"></i>
