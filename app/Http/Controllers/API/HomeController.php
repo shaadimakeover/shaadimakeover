@@ -91,19 +91,18 @@ class HomeController extends BaseController
                     'last_name' => $request->last_name,
                     'email' => $request->email,
                     'location' => $request->location,
-                    //'profile_photo_path' => $final_image_url,
                     'is_terms_conditions' => $request->is_accept_terms_conditions == "true" ? true : false,
                     'isProfileCompleted' => true,
-                    "password" => $request->password
+                    "password" => bcrypt($request->password)
                 ]);
 
             if (!is_null($user)) {
                 $getUser = User::find($user_id);
-                if ($request->user_type == 'artist') {
-                    $getUser->assignRole('ARTIST');
-                } else {
-                    $getUser->assignRole('USER');
-                }
+                // if ($request->user_type == 'artist') {
+                //     $getUser->assignRole('ARTIST');
+                // } else {
+                //     $getUser->assignRole('USER');
+                // }
                 DB::commit();
                 return $this->sendResponse($getUser, 'Your profile update successfully.', 200);
             } else {
@@ -112,7 +111,7 @@ class HomeController extends BaseController
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
-            return $this->sendError('Server Error!', [], 500);
+            return $this->sendError($th->getMessage(), [], 500);
         }
     }
 
