@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDashboard;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ArtistController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -53,6 +54,7 @@ Route::group(['prefix' => 'admin'], function () {
         // Route::resource('product', ProductController::class);
         Route::resource('cms', CmsController::class);
         Route::resource('faq', FaqController::class);
+        Route::resource('banners', BannerController::class);
     });
 });
 

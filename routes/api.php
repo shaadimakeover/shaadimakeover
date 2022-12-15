@@ -30,5 +30,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('user', 'getUserDetails');
         Route::get('logout', 'logout');
         Route::post('update-profile/{user_id}', 'updateProfile');
+        Route::get('banner-image', 'bannerImage');
+        Route::get('category', 'category');
+        Route::get('top-artist', 'topArtist');
     });
 });
+// Route::get('top-artist', [HomeController::class, 'topArtist']);

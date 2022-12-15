@@ -29,6 +29,7 @@ return new class extends Migration
             $table->boolean('is_terms_conditions')->default(true);
             $table->boolean('isVerified')->default(false);
             $table->boolean('isProfileCompleted')->default(false);
+            $table->boolean('isTopExpert')->default(false);
             $table->boolean('active')->default(true);
             $table->timestamps();
         });
