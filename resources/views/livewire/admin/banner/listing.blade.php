@@ -13,16 +13,16 @@
 
     <x-slot name="thead">
         <tr role="row">
-            <th tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 15%;"
+            <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 15%;"
                 aria-sort="ascending" aria-label="Agent: activate to sort column descending">Artist Name
             </th>
-            <th tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 15%;"
+            <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 15%;"
                 aria-sort="ascending" aria-label="Agent: activate to sort column descending">Thumbnail
             </th>
-            <th tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 15%;"
+            <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 15%;"
                 aria-sort="ascending" aria-label="Agent: activate to sort column descending">Title
             </th>
-            <th tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 20%;"
+            <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1" style="width: 20%;"
                 aria-sort="ascending" aria-label="Agent: activate to sort column descending">Menu Order
             </th>
             <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1"
@@ -75,10 +75,10 @@
     <x-slot name="tbody">
         @forelse($banners as $banner)
             <tr role="row" class="odd">
-                <td class="align-center">{{ $banner->user->full_name ?? 'NULL' }}</td>
+                <td class="align-center">{{ $banner->artist->full_name ?? 'NULL' }}</td>
                 <td class="align-center">
                     @if ($banner->thumbnail)
-                        <img src="{{ $banner->thumbnail }}" alt="" srcset=""
+                        <img src="{{ asset($banner->thumbnail) }}" alt="" srcset=""
                             style="width: 50px; height:50px;">
                     @endif
                 </td>
