@@ -47,7 +47,8 @@ class User extends Authenticatable implements HasMedia
         'active',
         'address',
         'is_terms_conditions',
-        'otp'
+        'otp',
+        'isTopExpert'
     ];
 
     /**

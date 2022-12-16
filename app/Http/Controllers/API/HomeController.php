@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ImageHelper;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\Banner;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -147,5 +149,101 @@ class HomeController extends BaseController
     public function getUserDetails()
     {
         return Auth::user();
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/banner-image",
+     * operationId="Banner",
+     * tags={"Banner Details"},
+     * summary="Banner Image Fetch",
+     * description="Get Banner Image ",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Banner retrieved successfully",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function bannerImage()
+    {
+        try {
+            $bannerImage = Banner::where('artist_id', Auth::id())->get();
+            if ($bannerImage) {
+                return $this->sendResponse($bannerImage, 'Banner retrieved successfully.');
+            } else {
+                return $this->sendError("Whoops! no banner found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/category",
+     * operationId="Category",
+     * tags={"Category Details"},
+     * summary="Category Image Fetch",
+     * description="Get category details ",
+     *      @OA\Response(
+     *          response=201,
+     *          description="category details retrieved successfully",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function category()
+    {
+        try {
+            $category = Category::where('active', 1)->get();
+            if ($category) {
+                return $this->sendResponse($category, 'Category retrieved successfully.');
+            } else {
+                return $this->sendError("Whoops! no category found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+    
+    /**
+     * @OA\Get(
+     * path="/api/top-artist",
+     * operationId="Top Artist",
+     * tags={"Top Artist Details"},
+     * summary="Top Artist Fetch",
+     * description="Get Top Artist details ",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Top Artist details retrieved successfully",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function topArtist()
+    {
+        try {
+            $topArtist = User::role('ARTIST')->where('isTopExpert', 1)->get();
+            if ($topArtist) {
+                return $this->sendResponse($topArtist, 'Top artist retrieved successfully.');
+            } else {
+                return $this->sendError("Whoops! no top artist found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
     }
 }
