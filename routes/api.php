@@ -33,6 +33,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('banner-image', 'bannerImage');
         Route::get('category', 'category');
         Route::get('top-artist', 'topArtist');
+        Route::get('post', 'post');
     });
 });
-// Route::get('top-artist', [HomeController::class, 'topArtist']);

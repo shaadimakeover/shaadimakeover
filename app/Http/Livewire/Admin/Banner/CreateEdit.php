@@ -72,7 +72,7 @@ class CreateEdit extends Component
                 unlink($this->imgId);
             }
             $file = $this->photo;
-            $path = 'Banner';
+            $path = 'banner';
             $final_image_url = ImageHelper::customSaveImage($file, $path);
             $dataVal['thumbnail'] = $final_image_url;
         } else {

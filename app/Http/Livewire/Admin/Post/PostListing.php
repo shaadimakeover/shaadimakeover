@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Livewire\Admin\Banner;
+namespace App\Http\Livewire\Admin\Post;
 
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Http\Livewire\Traits\WithSorting;
 use App\Http\Livewire\Traits\AlertMessage;
-use App\Models\Banner;
+use App\Models\MakeupArtistPost;
 
-class Listing extends Component
+class PostListing extends Component
 {
     use WithPagination;
     use WithSorting;
@@ -17,7 +17,8 @@ class Listing extends Component
     public $badgeColors = ['info', 'success', 'brand', 'dark', 'primary', 'warning'];
     protected $paginationTheme = 'bootstrap';
     protected $listeners = ['deleteConfirm', 'changeStatus', 'deleteSelected'];
-    public $searchUser, $searchTitle, $searchMenu, $searchStatus = -1, $perPage = 5;
+    public $searchUser, $searchTitle, $searchDesc, $searchStatus = -1, $perPage = 5;
+
 
     public function mount()
     {
@@ -49,59 +50,56 @@ class Listing extends Component
     {
         $this->searchUser = "";
         $this->searchTitle = "";
-        $this->searchMenu = "";
+        $this->searchDesc = "";
         $this->searchStatus = -1;
     }
-
     public function render()
     {
-        $bannerQuery = Banner::query();
+
+        $postQuery = MakeupArtistPost::query();
 
         if ($this->searchUser) {
-            $bannerQuery->whereHas('artist', function ($q) {
+            $postQuery->whereHas('artist', function ($q) {
                 $q->WhereRaw("concat(first_name,' ', last_name) like '%" . trim($this->searchUser) . "%' ");
             });
         }
 
         if ($this->searchTitle) {
-            $bannerQuery->where('title', 'like', '%' . trim($this->searchTitle) . '%');
+            $postQuery->where('post_title', 'like', '%' . trim($this->searchTitle) . '%');
         }
 
-        if ($this->searchMenu)
-            $bannerQuery->where('menu_order', 'like', '%' . trim($this->searchMenu) . '%');
+        if ($this->searchDesc)
+            $postQuery->where('post_desc', 'like', '%' . trim($this->searchDesc) . '%');
 
         if ($this->searchStatus >= 0)
-            $bannerQuery->where('status', $this->searchStatus);
+            $postQuery->where('status', $this->searchStatus);
 
-        return view('livewire.admin.banner.listing', [
-            'banners' => $bannerQuery
+        return view('livewire.admin.post.post-listing', [
+            'posts' => $postQuery
                 ->orderBy($this->sortBy, $this->sortDirection)
                 ->paginate($this->perPage)
         ]);
     }
 
-
-
     public function deleteAttempt($id)
     {
-        $this->showConfirmation("warning", 'Are you sure?', "You won't be able to recover this banner!", 'Yes, delete!', 'deleteConfirm', ['id' => $id]); //($type,$title,$text,$confirmText,$method)
+        $this->showConfirmation("warning", 'Are you sure?', "You won't be able to recover this post!", 'Yes, delete!', 'deleteConfirm', ['id' => $id]); //($type,$title,$text,$confirmText,$method)
     }
     public function deleteConfirm($id)
     {
-        Banner::destroy($id);
-        $this->showModal('success', 'Success', 'Banner has been deleted successfully');
+        MakeupArtistPost::destroy($id);
+        $this->showModal('success', 'Success', 'Post has been deleted successfully');
     }
-
 
     public function changeStatusConfirm($id)
     {
         $this->showConfirmation("warning", 'Are you sure?', "Do you want to change this status?", 'Yes, Change!', 'changeStatus', ['id' => $id]); //($type,$title,$text,$confirmText,$method)
     }
 
-    public function changeStatus(Banner $banner)
+    public function changeStatus(MakeupArtistPost $post)
     {
-        $banner->fill(['status' => ($banner->status == 1) ? 0 : 1])->save();
+        $post->fill(['status' => ($post->status == 1) ? 0 : 1])->save();
 
-        $this->showModal('success', 'Success', 'Banner status has been changed successfully');
+        $this->showModal('success', 'Success', 'Post status has been changed successfully');
     }
 }

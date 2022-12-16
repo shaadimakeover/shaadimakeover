@@ -6,6 +6,7 @@ use App\Helpers\ImageHelper;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\MakeupArtistPost;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -214,7 +215,7 @@ class HomeController extends BaseController
             return $this->sendError('Server Error!', [], 500);
         }
     }
-    
+
     /**
      * @OA\Get(
      * path="/api/top-artist",
@@ -240,6 +241,38 @@ class HomeController extends BaseController
                 return $this->sendResponse($topArtist, 'Top artist retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no top artist found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     * path="/api/post",
+     * operationId="Posts",
+     * tags={"Posts"},
+     * summary="Posts Fetch",
+     * description="Get Posts details ",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Posts details retrieved successfully",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+    public function post()
+    {
+        try {
+            $post = MakeupArtistPost::where('status', 1)->get();
+            if ($post) {
+                return $this->sendResponse($post, 'Post retrieved successfully.');
+            } else {
+                return $this->sendError("Whoops! no post found", [], 404);
             }
         } catch (\Throwable $th) {
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());

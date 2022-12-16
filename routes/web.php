@@ -4,8 +4,10 @@ use App\Http\Controllers\Admin\AdminDashboard;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ArtistController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\postController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Vendor\VendorDashboard;
@@ -49,12 +51,13 @@ Route::group(['prefix' => 'admin'], function () {
         });
         Route::resource('users', UserController::class);
         Route::resource('artists', ArtistController::class);
-        // Route::resource('category', CategoryController::class);
+        Route::resource('category', CategoryController::class);
         // Route::resource('brand', BrandController::class);
         // Route::resource('product', ProductController::class);
         Route::resource('cms', CmsController::class);
         Route::resource('faq', FaqController::class);
         Route::resource('banners', BannerController::class);
+        Route::resource('posts', postController::class);
     });
 });
 
