@@ -585,6 +585,32 @@
                     }
                 }
             }
+        },
+        "/api/post": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Posts Fetch",
+                "description": "Get Posts details ",
+                "operationId": "Posts",
+                "responses": {
+                    "201": {
+                        "description": "Posts details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
         }
     },
     "components": {

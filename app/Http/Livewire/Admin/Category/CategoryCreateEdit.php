@@ -49,7 +49,7 @@ class CategoryCreateEdit extends Component
     {
         return [
             'title' => ['required', 'max:255'],
-            'parent_id' => ['nullable', 'max:255'],
+            // 'parent_id' => ['nullable', 'max:255'],
             'short_description' => ['required', 'max:255'],
             'long_description' => ['nullable', 'max:255'],
             'meta_key' => ['nullable', 'max:255'],
@@ -62,7 +62,7 @@ class CategoryCreateEdit extends Component
     {
         return [
             'title' => ['required', 'max:255'],
-            'parent_id' => ['required', 'max:255'],
+            // 'parent_id' => ['required', 'max:255'],
             'short_description' => ['required', 'max:255'],
             'long_description' => ['nullable', 'max:255'],
             'meta_key' => ['nullable', 'max:255'],

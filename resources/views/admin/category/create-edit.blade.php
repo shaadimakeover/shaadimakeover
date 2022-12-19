@@ -1,4 +1,4 @@
-<x-admin-layout title="Category Management">
+<x-admin-layout title="Resource Management">
     <x-slot name="subHeader">
         <x-admin.sub-header headerTitle="">
             <x-admin.breadcrumbs>

@@ -17,20 +17,24 @@
                 style="width: 15%;" aria-sort="ascending" aria-label="Agent: activate to sort column descending">Artist
                 Name
             </th>
-            <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1"
-                style="width: 15%;" aria-sort="ascending" aria-label="Agent: activate to sort column descending">
-                Thumbnail
-            </th>
+
             <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1"
                 style="width: 15%;" aria-sort="ascending" aria-label="Agent: activate to sort column descending">Title
             </th>
+
             <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1"
-                style="width: 20%;" aria-sort="ascending" aria-label="Agent: activate to sort column descending">Menu
-                Order
+                style="width: 30%;" aria-sort="ascending" aria-label="Agent: activate to sort column descending">
+                Description
             </th>
+
             <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1"
-                style="width: 15%;" aria-label="Status: activate to sort column ascending">Status</th>
-            <th class="align-center" rowspan="1" colspan="1" style="width: 20%;" aria-label="Actions">Actions</th>
+                style="width: 20%;" aria-sort="ascending" aria-label="Agent: activate to sort column descending">
+                Attachment
+            </th>
+
+            <th class="align-center" tabindex="0" aria-controls="kt_table_1" rowspan="1" colspan="1"
+                style="width: 10%;" aria-label="Status: activate to sort column ascending">Status</th>
+            <th class="align-center" rowspan="1" colspan="1" style="width: 10%;" aria-label="Actions">Actions</th>
         </tr>
 
         <tr class="filter">
@@ -38,16 +42,19 @@
                 <x-admin.input type="search" wire:model.defer="searchUser" placeholder="" autocomplete="off"
                     class="form-control-sm form-filter" />
             </th>
-            <th>
-            </th>
+
             <th>
                 <x-admin.input type="search" wire:model.defer='searchTitle' autocomplete="off"
                     class="form-control-sm form-filter" />
             </th>
             <th>
-                <x-admin.input type="search" wire:model.defer='searchMenu' autocomplete="off"
+                <x-admin.input type="search" wire:model.defer='searchDesc' autocomplete="off"
                     class="form-control-sm form-filter" />
             </th>
+            <th>
+            </th>
+
+
             <th>
                 <select class="form-control form-control-sm form-filter kt-input" wire:model.defer="searchStatus"
                     title="Select" data-col-index="2">
@@ -76,25 +83,25 @@
     </x-slot>
 
     <x-slot name="tbody">
-        @forelse($banners as $banner)
+        @forelse($posts as $post)
             <tr role="row" class="odd">
-                <td class="align-center">{{ $banner->artist->full_name ?? 'NULL' }}</td>
+                <td class="align-center">{{ $post->artist->full_name ?? 'NULL' }}</td>
+                <td class="align-center">{{ $post->post_title }}</td>
+                <td class="align-center">{{ $post->post_desc }}</td>
                 <td class="align-center">
-                    @if ($banner->thumbnail)
-                        <img src="{{ asset($banner->thumbnail) }}" alt="" srcset=""
+                    @if ($post->post_attachment)
+                        <img src="{{ asset($post->post_attachment) }}" alt="" srcset=""
                             style="width: 50px; height:50px;">
                     @endif
                 </td>
-                <td class="align-center">{{ $banner->title }}</td>
-                <td class="align-center">{{ $banner->menu_order }}</td>
                 <td class="align-center"><span
-                        class="kt-badge  kt-badge--{{ $banner->status == 1 ? 'success' : 'warning' }} kt-badge--inline kt-badge--pill cursor-pointer"
-                        wire:click="changeStatusConfirm({{ $banner->id }})">{{ $banner->status == 1 ? 'Active' : 'Inactive' }}</span>
+                        class="kt-badge  kt-badge--{{ $post->status == 1 ? 'success' : 'warning' }} kt-badge--inline kt-badge--pill cursor-pointer"
+                        wire:click="changeStatusConfirm({{ $post->id }})">{{ $post->status == 1 ? 'Active' : 'Inactive' }}</span>
                 </td>
                 <x-admin.td-action>
-                    <a class="dropdown-item" href="{{ route('banners.edit', ['banner' => $banner->id]) }}"><i
-                            class="la la-edit"></i> Edit</a>
-                    <button href="#" class="dropdown-item" wire:click="deleteAttempt({{ $banner->id }})"><i
+                    {{-- <a class="dropdown-item" href="{{ route('posts.edit', ['post' => $post->id]) }}"><i
+                            class="la la-edit"></i> Edit</a> --}}
+                    <button href="#" class="dropdown-item" wire:click="deleteAttempt({{ $post->id }})"><i
                             class="fa fa-trash"></i> Delete</button>
                 </x-admin.td-action>
             </tr>
@@ -105,10 +112,10 @@
         @endforelse
     </x-slot>
     <x-slot name="pagination">
-        {{ $banners->links() }}
+        {{ $posts->links() }}
     </x-slot>
     <x-slot name="showingEntries">
-        Showing {{ $banners->firstitem() ?? 0 }} to {{ $banners->lastitem() ?? 0 }} of {{ $banners->total() }}
+        Showing {{ $posts->firstitem() ?? 0 }} to {{ $posts->lastitem() ?? 0 }} of {{ $posts->total() }}
         entries
     </x-slot>
 </x-admin.table>

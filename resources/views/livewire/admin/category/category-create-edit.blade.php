@@ -8,7 +8,7 @@
             <x-admin.input-error for="title" />
         </x-admin.form-group>
 
-        <x-admin.form-group>
+        {{-- <x-admin.form-group>
             <x-admin.lable value="Parent Category" />
             <x-admin.dropdown wire:model.defer="parent_id" placeHolderText="Please select parent category"
                 autocomplete="off" class="{{ $errors->has('parent_id') ? 'is-invalid' : '' }}">
@@ -18,7 +18,7 @@
                 @endforeach
             </x-admin.dropdown>
             <x-admin.input-error for="parent_id" />
-        </x-admin.form-group>
+        </x-admin.form-group> --}}
 
         <x-admin.form-group>
             <x-admin.lable value="Short Description" required />
