@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ImageHelper;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Http\Resources\BannerResource;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\MakeupArtistPost;
@@ -160,7 +161,7 @@ class HomeController extends BaseController
      * summary="Banner Image Fetch",
      * description="Get Banner Image ",
      *      @OA\Response(
-     *          response=201,
+     *          response=200,
      *          description="Banner retrieved successfully",
      *          @OA\JsonContent()
      *       ),
@@ -172,13 +173,15 @@ class HomeController extends BaseController
     public function bannerImage()
     {
         try {
-            $bannerImage = Banner::where('artist_id', Auth::id())->get();
-            if ($bannerImage) {
-                return $this->sendResponse($bannerImage, 'Banner retrieved successfully.');
+            $banner = Banner::with('artist')->where('status', 1)->get();
+            if ($banner) {
+                return $this->sendResponse(BannerResource::collection($banner), 'Banner retrieved successfully.');
+                //return $this->sendResponse($bannerImage, 'Banner retrieved successfully.');
             } else {
-                return $this->sendError("Whoops! no banner found", [], 404);
+                return $this->sendError("Oops! no banner found", [], 404);
             }
         } catch (\Throwable $th) {
+            dd($th);
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -192,7 +195,7 @@ class HomeController extends BaseController
      * summary="Category Image Fetch",
      * description="Get category details ",
      *      @OA\Response(
-     *          response=201,
+     *          response=200,
      *          description="category details retrieved successfully",
      *          @OA\JsonContent()
      *       ),
@@ -224,7 +227,7 @@ class HomeController extends BaseController
      * summary="Top Artist Fetch",
      * description="Get Top Artist details ",
      *      @OA\Response(
-     *          response=201,
+     *          response=200,
      *          description="Top Artist details retrieved successfully",
      *          @OA\JsonContent()
      *       ),
