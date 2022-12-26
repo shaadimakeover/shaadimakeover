@@ -5,6 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Helpers\ImageHelper;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Http\Resources\BannerResource;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\PostResource;
+use App\Http\Resources\TopArtistResource;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\MakeupArtistPost;
@@ -181,7 +184,6 @@ class HomeController extends BaseController
                 return $this->sendError("Oops! no banner found", [], 404);
             }
         } catch (\Throwable $th) {
-            dd($th);
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -209,7 +211,7 @@ class HomeController extends BaseController
         try {
             $category = Category::where('active', 1)->get();
             if ($category) {
-                return $this->sendResponse($category, 'Category retrieved successfully.');
+                return $this->sendResponse(CategoryResource::collection($category) , 'Category retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no category found", [], 404);
             }
@@ -241,11 +243,12 @@ class HomeController extends BaseController
         try {
             $topArtist = User::role('ARTIST')->where('isTopExpert', 1)->get();
             if ($topArtist) {
-                return $this->sendResponse($topArtist, 'Top artist retrieved successfully.');
+                return $this->sendResponse(TopArtistResource::collection($topArtist), 'Top artist retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no top artist found", [], 404);
             }
         } catch (\Throwable $th) {
+            dd($th);
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -273,7 +276,7 @@ class HomeController extends BaseController
         try {
             $post = MakeupArtistPost::where('status', 1)->get();
             if ($post) {
-                return $this->sendResponse($post, 'Post retrieved successfully.');
+                return $this->sendResponse(PostResource::collection($post), 'Post retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no post found", [], 404);
             }
