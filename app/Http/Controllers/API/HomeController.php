@@ -241,7 +241,7 @@ class HomeController extends BaseController
     public function topArtist()
     {
         try {
-            $topArtist = User::role('ARTIST')->where('isTopExpert', 1)->get();
+            $topArtist = User::where('isTopExpert', 1)->get();
             if ($topArtist) {
                 return $this->sendResponse(TopArtistResource::collection($topArtist), 'Top artist retrieved successfully.');
             } else {
@@ -275,7 +275,7 @@ class HomeController extends BaseController
     {
         try {
             $post = MakeupArtistPost::where('status', 1)->get();
-            if ($post) {
+            if ($post->isNotEmpty()) {
                 return $this->sendResponse(PostResource::collection($post), 'Post retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no post found", [], 404);
