@@ -211,7 +211,7 @@ class HomeController extends BaseController
         try {
             $category = Category::where('active', 1)->get();
             if ($category) {
-                return $this->sendResponse(CategoryResource::collection($category) , 'Category retrieved successfully.');
+                return $this->sendResponse(CategoryResource::collection($category), 'Category retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no category found", [], 404);
             }
@@ -241,7 +241,7 @@ class HomeController extends BaseController
     public function topArtist()
     {
         try {
-            $topArtist = User::where('isTopExpert', 1)->get();
+            $topArtist = User::role('ARTIST')->where('isTopExpert', 1)->where('active', 1)->get();
             if ($topArtist) {
                 return $this->sendResponse(TopArtistResource::collection($topArtist), 'Top artist retrieved successfully.');
             } else {
