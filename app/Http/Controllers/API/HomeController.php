@@ -5,6 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Helpers\ImageHelper;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Http\Resources\BannerResource;
+use App\Http\Resources\CategoryResource;
+use App\Http\Resources\PostResource;
+use App\Http\Resources\TopArtistResource;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\MakeupArtistPost;
@@ -181,7 +184,6 @@ class HomeController extends BaseController
                 return $this->sendError("Oops! no banner found", [], 404);
             }
         } catch (\Throwable $th) {
-            dd($th);
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -209,7 +211,7 @@ class HomeController extends BaseController
         try {
             $category = Category::where('active', 1)->get();
             if ($category) {
-                return $this->sendResponse($category, 'Category retrieved successfully.');
+                return $this->sendResponse(CategoryResource::collection($category), 'Category retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no category found", [], 404);
             }
@@ -239,13 +241,14 @@ class HomeController extends BaseController
     public function topArtist()
     {
         try {
-            $topArtist = User::role('ARTIST')->where('isTopExpert', 1)->get();
+            $topArtist = User::role('ARTIST')->where('isTopExpert', 1)->where('active', 1)->get();
             if ($topArtist) {
-                return $this->sendResponse($topArtist, 'Top artist retrieved successfully.');
+                return $this->sendResponse(TopArtistResource::collection($topArtist), 'Top artist retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no top artist found", [], 404);
             }
         } catch (\Throwable $th) {
+            dd($th);
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
@@ -272,11 +275,114 @@ class HomeController extends BaseController
     {
         try {
             $post = MakeupArtistPost::where('status', 1)->get();
-            if ($post) {
-                return $this->sendResponse($post, 'Post retrieved successfully.');
+            if ($post->isNotEmpty()) {
+                return $this->sendResponse(PostResource::collection($post), 'Post retrieved successfully.');
             } else {
                 return $this->sendError("Whoops! no post found", [], 404);
             }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    public function artistDetails($artist_id)
+    {
+        try {
+            //dd('OK', $artist_id);
+
+            $data = [
+                "artist_id" => 10,
+                "artist_name" => "Bapi Biswas",
+                "artist_email" => "Chakdha",
+                "artist_phone" => "Chakdha",
+                "artist_business_name" => "Chakdha",
+                "artist_business_email" => "Chakdha",
+                "artist_business_phone" => "Chakdha",
+                "artist_location" => "Chakdha",
+                "is_featured_artist" => true,
+                "artist_about" => "",
+                "artist_working_since" => 2022,
+                "artist_can_do_makeup_at" => true ? "Studio & your Venue both place" : "Only your Venue",
+                "artist_thumbnail" => "",
+                "artist_photos" => [
+                    "top_photos" => [],
+                    "bridal_makeup" => [],
+                    "engagement_makeup" => [],
+                    "party_makeup" => [],
+                    "studio_photo" => [],
+                    "profile_photo" => [],
+                    "achievement_photo" => [],
+                    "hair_style_photo" => [],
+                    "mehandi_photo" => []
+                ],
+                "artist_total_photos" => 30,
+                "pricing" => [
+                    [
+                        "service_id" => 1,
+                        "service_name" => "AIRBRUSH BRIDAL MAKEUP",
+                        "price" => 0.00,
+                        "description" => ""
+                    ],
+                    [
+                        "service_id" => 2,
+                        "service_name" => "BRIDAL MAKEUP",
+                        "price" => 0.00,
+                        "description" => ""
+                    ],
+                    [
+                        "service_id" => 3,
+                        "service_name" => "GUEST/FAMILY MAKEUP",
+                        "price" => 0.00,
+                        "description" => ""
+                    ],
+                    [
+                        "service_id" => 4,
+                        "service_name" => "TRIAL MAKEUP",
+                        "price" => 0.00,
+                        "description" => ""
+                    ],
+                ],
+                "payment_policy" => [
+                    ["50% - At the Time of booking"],
+                    ["50% - On Event date"],
+                    ["0% - After deliverables are delivered"]
+                ],
+                "cancellation_policy" => [
+                    ["No policy"]
+                ],
+                "total_ratings" => 5.0,
+                "total_reviews" => 3,
+                "reviews" => [
+                    [
+                        "user_id" => 15,
+                        "user_name" => "Demo",
+                        "user_avatar" => "",
+                        "ratings" => 4.0,
+                        "comment" => "",
+                        "date" => "12/12/2022"
+                    ],
+                    [
+                        "user_id" => 15,
+                        "user_name" => "Demo",
+                        "user_avatar" => "",
+                        "ratings" => 4.0,
+                        "comment" => "",
+                        "date" => "12/12/2022"
+                    ],
+                    [
+                        "user_id" => 15,
+                        "user_name" => "Demo",
+                        "user_avatar" => "",
+                        "ratings" => 4.0,
+                        "comment" => "",
+                        "date" => "12/12/2022"
+                    ],
+
+                ]
+            ];
+
+            return $this->sendResponse($data, 'Post retrieved successfully.');
         } catch (\Throwable $th) {
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
