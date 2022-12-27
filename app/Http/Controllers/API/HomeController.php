@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Helpers\ImageHelper;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryResource;
@@ -105,11 +104,11 @@ class HomeController extends BaseController
 
             if (!is_null($user)) {
                 $getUser = User::find($user_id);
-                // if ($request->user_type == 'artist') {
-                //     $getUser->assignRole('ARTIST');
-                // } else {
-                //     $getUser->assignRole('USER');
-                // }
+                if ($request->user_type == 'artist') {
+                    $getUser->assignRole('ARTIST');
+                } else {
+                    $getUser->assignRole('USER');
+                }
                 DB::commit();
                 return $this->sendResponse($getUser, 'Your profile update successfully.', 200);
             } else {
@@ -286,11 +285,34 @@ class HomeController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     * path="/api/artist-details",
+     * operationId="Artist",
+     * tags={"Artist Details"},
+     * summary="Artist Full Details Fetch",
+     * description="Get Artist Details",
+     * @OA\Parameter(
+     *          name="artist_id",
+     *          description="Artist ID",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Artist Details retrieved successfully",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
     public function artistDetails($artist_id)
     {
         try {
-            //dd('OK', $artist_id);
-
             $data = [
                 "artist_id" => 10,
                 "artist_name" => "Bapi Biswas",
@@ -382,7 +404,7 @@ class HomeController extends BaseController
                 ]
             ];
 
-            return $this->sendResponse($data, 'Post retrieved successfully.');
+            return $this->sendResponse($data, 'Artist Details retrieved successfully.');
         } catch (\Throwable $th) {
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);

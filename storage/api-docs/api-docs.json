@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Laravel",
+        "title": "shaadimakeover.com",
         "description": "L5 Swagger OpenApi description",
         "contact": {
             "email": "info@shaadimakeover.com"
@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000",
+            "url": "http://127.0.01:8000",
             "description": "API Server"
         }
     ],
@@ -517,7 +517,7 @@
                 "description": "Get Banner Image ",
                 "operationId": "Banner",
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Banner retrieved successfully",
                         "content": {
                             "application/json": {
@@ -543,7 +543,7 @@
                 "description": "Get category details ",
                 "operationId": "Category",
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "category details retrieved successfully",
                         "content": {
                             "application/json": {
@@ -569,7 +569,7 @@
                 "description": "Get Top Artist details ",
                 "operationId": "Top Artist",
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Top Artist details retrieved successfully",
                         "content": {
                             "application/json": {
@@ -597,6 +597,43 @@
                 "responses": {
                     "201": {
                         "description": "Posts details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/artist-details": {
+            "get": {
+                "tags": [
+                    "Artist Details"
+                ],
+                "summary": "Banner Image Fetch",
+                "description": "Get Banner Image ",
+                "operationId": "Artist",
+                "parameters": [
+                    {
+                        "name": "artist_id",
+                        "in": "path",
+                        "description": "Artist ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Banner retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {}
