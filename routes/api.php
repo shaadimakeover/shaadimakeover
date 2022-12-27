@@ -25,7 +25,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('social-login', 'socialLogin');
     Route::post('reset-password/{user_id}', 'resetPassword');
 });
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::controller(HomeController::class)->group(function () {
         Route::get('user', 'getUserDetails');
         Route::get('logout', 'logout');
@@ -34,5 +34,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('category', 'category');
         Route::get('top-artist', 'topArtist');
         Route::get('post', 'post');
+        Route::get('artist-details/{artist_id}', 'artistDetails');
+
     });
 });
