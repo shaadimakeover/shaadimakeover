@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('makeup_artist_pricings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('expert_id')->nullable();
-            $table->foreign('expert_id')->on('users')->references('id')->onDelete('cascade');
+            $table->unsignedBigInteger('artist_id')->nullable();
+            $table->foreign('artist_id')->on('users')->references('id')->onDelete('cascade');
             $table->unsignedBigInteger('pricing_category_id')->nullable();
             $table->float('price')->nullable();
             $table->integer('person')->nullable();

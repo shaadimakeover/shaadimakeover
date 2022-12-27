@@ -15,11 +15,10 @@ return new class extends Migration
     {
         Schema::create('makeup_artist_photos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('expert_id')->nullable();
-            $table->foreign('expert_id')->on('users')->references('id')->onDelete('cascade');
-            $table->string('category')->nullable();
+            $table->unsignedBigInteger('artist_id')->nullable();
+            $table->foreign('artist_id')->on('users')->references('id')->onDelete('cascade');
+            $table->foreignId('photo_album_id')->constrained()->onDelete('cascade');
             $table->string('photo');
-            $table->boolean('is_top_photo')->default(true);
             $table->timestamps();
         });
     }

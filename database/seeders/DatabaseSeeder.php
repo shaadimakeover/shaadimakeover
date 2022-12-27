@@ -20,5 +20,6 @@ class DatabaseSeeder extends Seeder
         //$this->call(ProductSeeder::class);
         $this->call(CmsTableSeeder::class);
         $this->call(CategorySeeder::class);
+        $this->call(PhotoAlbumSeeder::class);
     }
 }

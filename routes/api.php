@@ -34,7 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('category', 'category');
         Route::get('top-artist', 'topArtist');
         Route::get('post', 'post');
-        Route::get('artist-details/{artist_id}', 'artistDetails');
+        // Route::get('artist-details/{artist_id}', 'artistDetails');
 
     });
 });
+
+Route::get('artist-details/{artist_id}', [HomeController::class, 'artistDetails']);

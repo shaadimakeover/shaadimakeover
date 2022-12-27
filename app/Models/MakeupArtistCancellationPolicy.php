@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class MakeupArtistCancellationPolicy extends Model
 {
     use HasFactory;
-    protected $fillable = ['expert_id', 'cancellation_policy'];
+    protected $fillable = ['artist_id', 'cancellation_policy'];
 }

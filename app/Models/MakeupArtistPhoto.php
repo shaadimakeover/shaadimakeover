@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class MakeupArtistPhoto extends Model
 {
     use HasFactory;
-    protected $fillable = ['expert_id', 'category', 'photo', 'is_top_photo'];
+    protected $fillable = ['artist_id', 'photo_album_id', 'photo'];
 }

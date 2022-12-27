@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class MakeupArtistPaymentPolicy extends Model
 {
     use HasFactory;
-    protected $fillable = ['expert_id', 'percentage_of_pay', 'time_to_pay'];
+    protected $fillable = ['artist_id', 'percentage_of_pay', 'time_to_pay'];
 }
