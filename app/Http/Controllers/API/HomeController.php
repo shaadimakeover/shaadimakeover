@@ -9,8 +9,10 @@ use App\Http\Resources\PostResource;
 use App\Http\Resources\TopArtistResource;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\MakeupArtistPaymentPolicy;
 use App\Models\MakeupArtistPhoto;
 use App\Models\MakeupArtistPost;
+use App\Models\MakeupArtistPricing;
 use App\Models\MakeupArtistProfile;
 use App\Models\PhotoAlbum;
 use Illuminate\Http\Request;
@@ -317,10 +319,11 @@ class HomeController extends BaseController
 
     public function artistDetails($artist_id)
     {
-        $slug = "";
-        $getArtist = User::where('id', $artist_id)->first();
+        $getArtist = User::where('id', $artist_id)->first()->toJson(JSON_PRETTY_PRINT);
+        dd($getArtist);
         $getArtistProfile = MakeupArtistProfile::where('artist_id', $artist_id)->first();
-        $getArtistTopPhoto = $this->profilePhoto($slug = "top-photos", $artist_id);
+        $countArtistPhotos = MakeupArtistPhoto::where('artist_id', $artist_id)->get()->count();
+        $getArtistTopPhoto = $this->profilePhoto("top-photos", $artist_id);
         $getArtistBridalPhoto = $this->profilePhoto('bridal-makeup', $artist_id);
         $getArtistEngagementPhoto = $this->profilePhoto('engagement-makeup', $artist_id);
         $getArtistPartyPhoto = $this->profilePhoto('party-makeup', $artist_id);
@@ -329,6 +332,9 @@ class HomeController extends BaseController
         $getArtistAchievementPhoto = $this->profilePhoto('achievement-photo', $artist_id);
         $getArtistHairStylePhoto = $this->profilePhoto('hair-style-photo', $artist_id);
         $getArtistMehendiPhoto = $this->profilePhoto('mehendi-photo', $artist_id);
+        $getArtistPricing = MakeupArtistPricing::with('pricingService')->where('artist_id', $artist_id)->get()->toArray();
+        $getArtistPaymentPolicies = MakeupArtistPaymentPolicy::where('artist_id', $artist_id)->get()->toArray();
+        $getArtistPaymentPolicies = MakeupArtistPaymentPolicy::where('artist_id', $artist_id)->get()->toArray();
         try {
             $data = [
                 "artist_id" => $getArtist->id ?? '',
@@ -355,38 +361,9 @@ class HomeController extends BaseController
                     "hair_style_photo" => $getArtistHairStylePhoto,
                     "mehandi_photo" => $getArtistMehendiPhoto
                 ],
-                "artist_total_photos" => 30,
-                "pricing" => [
-                    [
-                        "service_id" => 1,
-                        "service_name" => "AIRBRUSH BRIDAL MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                    [
-                        "service_id" => 2,
-                        "service_name" => "BRIDAL MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                    [
-                        "service_id" => 3,
-                        "service_name" => "GUEST/FAMILY MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                    [
-                        "service_id" => 4,
-                        "service_name" => "TRIAL MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                ],
-                "payment_policy" => [
-                    ["50% - At the Time of booking"],
-                    ["50% - On Event date"],
-                    ["0% - After deliverables are delivered"]
-                ],
+                "artist_total_photos" => $countArtistPhotos,
+                "pricing" => $getArtistPricing,
+                "payment_policy" => $getArtistPaymentPolicies,
                 "cancellation_policy" => [
                     ["No policy"]
                 ],
@@ -433,11 +410,12 @@ class HomeController extends BaseController
     {
         if ($slug) {
             $getAlbum = PhotoAlbum::where('slug', $slug)->first();
-            $getPhoto = MakeupArtistPhoto::where('artist_id', $artist_id)->where('photo_album_id', $getAlbum)->get()->toArray();
-            return $getPhoto;
+            if ($getAlbum) {
+                $getPhoto = MakeupArtistPhoto::where('artist_id', $artist_id)->where('photo_album_id', $getAlbum->id)->get()->toArray();
+                return $getPhoto;
+            }
+            return [];
         }
-        // else {
-        //     return [];
-        // }
+        return [];
     }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('artist_id')->nullable();
             $table->foreign('artist_id')->on('users')->references('id')->onDelete('cascade');
             $table->integer('percentage_of_pay')->nullable();
-            $table->enum('time_to_pay',['AT THE TIME OF BOOKING','ON EVENT DATE'])->nullable();
+            $table->enum('time_to_pay', ['AT THE TIME OF BOOKING', 'ON EVENT DATE','AFTER DELIVERABLES ARE DELIVERED'])->nullable();
             $table->timestamps();
         });
     }
