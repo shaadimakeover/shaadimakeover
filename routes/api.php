@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\ArtistController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\HomeController;
 use App\Http\Controllers\API\ProductController;
@@ -37,6 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Route::get('artist-details/{artist_id}', 'artistDetails');
 
     });
+    Route::post('artist-profile-update', [ArtistController::class, 'updateArtist']);
+    Route::get('photo-album', [ArtistController::class, 'photoAlbum']);
+    Route::post('artist-photo-upload', [ArtistController::class, 'artistPhotoUpload']);
+    Route::get('pricing-service', [ArtistController::class, 'priceService']);
+    Route::post('artist-pricing', [ArtistController::class, 'artistPrice']);
 });
 
 Route::get('artist-details/{artist_id}', [HomeController::class, 'artistDetails']);

@@ -9,12 +9,14 @@ use App\Http\Resources\PostResource;
 use App\Http\Resources\TopArtistResource;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\MakeupArtistCancellationPolicy;
 use App\Models\MakeupArtistPaymentPolicy;
 use App\Models\MakeupArtistPhoto;
 use App\Models\MakeupArtistPost;
 use App\Models\MakeupArtistPricing;
 use App\Models\MakeupArtistProfile;
 use App\Models\PhotoAlbum;
+use App\Models\Rating;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -319,8 +321,7 @@ class HomeController extends BaseController
 
     public function artistDetails($artist_id)
     {
-        $getArtist = User::where('id', $artist_id)->first()->toJson(JSON_PRETTY_PRINT);
-        dd($getArtist);
+        $getArtist = User::where('id', $artist_id)->first();
         $getArtistProfile = MakeupArtistProfile::where('artist_id', $artist_id)->first();
         $countArtistPhotos = MakeupArtistPhoto::where('artist_id', $artist_id)->get()->count();
         $getArtistTopPhoto = $this->profilePhoto("top-photos", $artist_id);
@@ -334,7 +335,8 @@ class HomeController extends BaseController
         $getArtistMehendiPhoto = $this->profilePhoto('mehendi-photo', $artist_id);
         $getArtistPricing = MakeupArtistPricing::with('pricingService')->where('artist_id', $artist_id)->get()->toArray();
         $getArtistPaymentPolicies = MakeupArtistPaymentPolicy::where('artist_id', $artist_id)->get()->toArray();
-        $getArtistPaymentPolicies = MakeupArtistPaymentPolicy::where('artist_id', $artist_id)->get()->toArray();
+        $getArtistPaymentCancellationPolicies = MakeupArtistCancellationPolicy::where('artist_id', $artist_id)->get()->toArray();
+        $artistRating=Rating::where('artist_id',$artist_id)->count();
         try {
             $data = [
                 "artist_id" => $getArtist->id ?? '',
@@ -364,36 +366,34 @@ class HomeController extends BaseController
                 "artist_total_photos" => $countArtistPhotos,
                 "pricing" => $getArtistPricing,
                 "payment_policy" => $getArtistPaymentPolicies,
-                "cancellation_policy" => [
-                    ["No policy"]
-                ],
-                "total_ratings" => 5.0,
-                "total_reviews" => 3,
+                "cancellation_policy" => $getArtistPaymentCancellationPolicies,
+                "total_ratings" => $artistRating,
+                "total_reviews" => 0,
                 "reviews" => [
-                    [
-                        "user_id" => 15,
-                        "user_name" => "Demo",
-                        "user_avatar" => "",
-                        "ratings" => 4.0,
-                        "comment" => "",
-                        "date" => "12/12/2022"
-                    ],
-                    [
-                        "user_id" => 15,
-                        "user_name" => "Demo",
-                        "user_avatar" => "",
-                        "ratings" => 4.0,
-                        "comment" => "",
-                        "date" => "12/12/2022"
-                    ],
-                    [
-                        "user_id" => 15,
-                        "user_name" => "Demo",
-                        "user_avatar" => "",
-                        "ratings" => 4.0,
-                        "comment" => "",
-                        "date" => "12/12/2022"
-                    ],
+                    // [
+                    //     "user_id" => 15,
+                    //     "user_name" => "Demo",
+                    //     "user_avatar" => "",
+                    //     "ratings" => 4.0,
+                    //     "comment" => "",
+                    //     "date" => "12/12/2022"
+                    // ],
+                    // [
+                    //     "user_id" => 15,
+                    //     "user_name" => "Demo",
+                    //     "user_avatar" => "",
+                    //     "ratings" => 4.0,
+                    //     "comment" => "",
+                    //     "date" => "12/12/2022"
+                    // ],
+                    // [
+                    //     "user_id" => 15,
+                    //     "user_name" => "Demo",
+                    //     "user_avatar" => "",
+                    //     "ratings" => 4.0,
+                    //     "comment" => "",
+                    //     "date" => "12/12/2022"
+                    // ],
 
                 ]
             ];
