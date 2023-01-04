@@ -43,6 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('artist-photo-upload', [ArtistController::class, 'artistPhotoUpload']);
     Route::get('pricing-service', [ArtistController::class, 'priceService']);
     Route::post('artist-pricing', [ArtistController::class, 'artistPrice']);
+    Route::post('artist-payment-policy', [ArtistController::class, 'paymentPolicy']);
+    Route::post('artist-cancellation-policy', [ArtistController::class, 'cancellationPolicy']);
 });
 
 Route::get('artist-details/{artist_id}', [HomeController::class, 'artistDetails']);

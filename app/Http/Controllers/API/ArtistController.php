@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Helpers\ImageHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\MakeupArtistCancellationPolicy;
+use App\Models\MakeupArtistPaymentPolicy;
 use App\Models\MakeupArtistPhoto;
 use App\Models\MakeupArtistPricing;
 use App\Models\MakeupArtistProfile;
@@ -20,6 +22,40 @@ use Stripe\Service\PriceService;
 
 class ArtistController extends BaseController
 {
+    /**
+     * @OA\Post(
+     * path="/api/artist-profile-update",
+     * operationId="Artist Profile Update",
+     * tags={"Artist profile Update"},
+     * summary="Artist Profile Update",
+     * security={{"sanctum":{}}},
+     * description="Artist Profile Update here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"artist_business_name","artist_business_email","artist_business_phone","artist_location","is_featured_artist","artist_about","artist_working_since","artist_can_do_makeup_at"},
+     *               @OA\Property(property="artist_business_name", type="string"),
+     *               @OA\Property(property="artist_business_email", type="email"),
+     *               @OA\Property(property="artist_business_phone", type="number"),
+     *               @OA\Property(property="artist_location", type="string"),
+     *               @OA\Property(property="is_featured_artist",  type="boolean", example="true"),
+     *               @OA\Property(property="artist_about", type="text"),
+     *               @OA\Property(property="artist_working_since", type="number"),
+     *               @OA\Property(property="artist_can_do_makeup_at",  type="boolean", example="true"),
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Your profile update successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
     public function updateArtist(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -174,10 +210,10 @@ class ArtistController extends BaseController
 
         DB::beginTransaction();
         try {
-            $user = MakeupArtistPricing::updateOrCreate(
-                ['artist_id' => Auth::id()],
-                ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
-            );
+            // $user = MakeupArtistPricing::updateOrCreate(
+            //     ['artist_id' => Auth::id()],
+            //     ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
+            // );
             // $user = MakeupArtistPricing::where('artist_id', Auth::id())->get();
             // if ($user->isNotEmpty()) {
             //     foreach ($user as $item) {
@@ -188,12 +224,12 @@ class ArtistController extends BaseController
             //         ]);
             //     }
             // } else {
-            // $user = MakeupArtistPricing::create([
-            //     'artist_id' => Auth::id(),
-            //     'pricing_service_id' => $request->pricing_service_id,
-            //     'price' => $request->price,
-            //     'description' => $request->description
-            // ]);
+            $user = MakeupArtistPricing::create([
+                'artist_id' => Auth::id(),
+                'pricing_service_id' => $request->pricing_service_id,
+                'price' => $request->price,
+                'description' => $request->description
+            ]);
             // }
 
             if (!is_null($user)) {
@@ -201,6 +237,99 @@ class ArtistController extends BaseController
                 return $this->sendResponse($user, 'Your pricing update successfully.', 200);
             } else {
                 return $this->sendError('Your pricing update failed!', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError($th->getMessage(), [], 500);
+        }
+    }
+
+
+    public function paymentPolicy(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'percentage_of_pay' => 'required|numeric|max:255',
+            'time_to_pay' => 'required|numeric|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            // $user = MakeupArtistPricing::updateOrCreate(
+            //     ['artist_id' => Auth::id()],
+            //     ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
+            // );
+            // $user = MakeupArtistPricing::where('artist_id', Auth::id())->get();
+            // if ($user->isNotEmpty()) {
+            //     foreach ($user as $item) {
+            //         $item->update([
+            //             'pricing_service_id' => $request->pricing_service_id,
+            //             'price' => $request->price,
+            //             'description' => $request->description,
+            //         ]);
+            //     }
+            // } else {
+            $user = MakeupArtistPaymentPolicy::create([
+                'artist_id' => Auth::id(),
+                'percentage_of_pay' => $request->percentage_of_pay,
+                'time_to_pay' => $request->time_to_pay
+            ]);
+            // }
+
+            if (!is_null($user)) {
+                DB::commit();
+                return $this->sendResponse($user, 'Your payment policy update successfully.', 200);
+            } else {
+                return $this->sendError('Your payment policy update failed!', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError($th->getMessage(), [], 500);
+        }
+    }
+    
+    public function cancellationPolicy(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'cancellation_policy' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            // $user = MakeupArtistPricing::updateOrCreate(
+            //     ['artist_id' => Auth::id()],
+            //     ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
+            // );
+            // $user = MakeupArtistPricing::where('artist_id', Auth::id())->get();
+            // if ($user->isNotEmpty()) {
+            //     foreach ($user as $item) {
+            //         $item->update([
+            //             'pricing_service_id' => $request->pricing_service_id,
+            //             'price' => $request->price,
+            //             'description' => $request->description,
+            //         ]);
+            //     }
+            // } else {
+            $user = MakeupArtistCancellationPolicy::create([
+                'artist_id' => Auth::id(),
+                'cancellation_policy' => $request->cancellation_policy
+            ]);
+            // }
+
+            if (!is_null($user)) {
+                DB::commit();
+                return $this->sendResponse($user, 'Your Cancellation policy update successfully.', 200);
+            } else {
+                return $this->sendError('Your cancellation policy update failed!', [], 400);
             }
         } catch (\Throwable $th) {
             DB::rollBack();
