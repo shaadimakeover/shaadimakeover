@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('makeup_artist_pricings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('expert_id')->nullable();
-            $table->foreign('expert_id')->on('users')->references('id')->onDelete('cascade');
-            $table->unsignedBigInteger('pricing_category_id')->nullable();
+            $table->unsignedBigInteger('artist_id')->nullable();
+            $table->foreign('artist_id')->on('users')->references('id')->onDelete('cascade');
+            $table->foreignId('pricing_service_id')->nullable()->constrained()->onDelete('cascade');
             $table->float('price')->nullable();
-            $table->integer('person')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

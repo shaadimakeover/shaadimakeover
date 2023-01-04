@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "shaadimakeover.com",
+        "title": "Laravel",
         "description": "L5 Swagger OpenApi description",
         "contact": {
             "email": "info@shaadimakeover.com"
@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.01:8000",
+            "url": "http://127.0.0.1:8000",
             "description": "API Server"
         }
     ],
@@ -617,8 +617,8 @@
                 "tags": [
                     "Artist Details"
                 ],
-                "summary": "Banner Image Fetch",
-                "description": "Get Banner Image ",
+                "summary": "Artist Full Details Fetch",
+                "description": "Get Artist Details",
                 "operationId": "Artist",
                 "parameters": [
                     {
@@ -633,7 +633,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Banner retrieved successfully",
+                        "description": "Artist Details retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {}

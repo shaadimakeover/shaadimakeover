@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('makeup_artist_cancellation_policies', function (Blueprint $table) {
+        Schema::create('photo_albums', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('artist_id')->nullable();
-            $table->foreign('artist_id')->on('users')->references('id')->onDelete('cascade');
-            $table->text('cancellation_policy')->nullable();
+            $table->string('name')->nullable();
+            $table->string('slug')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('makeup_artist_cancellation_policies');
+        Schema::dropIfExists('photo_albums');
     }
 };

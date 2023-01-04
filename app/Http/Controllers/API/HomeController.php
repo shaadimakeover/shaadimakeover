@@ -9,7 +9,14 @@ use App\Http\Resources\PostResource;
 use App\Http\Resources\TopArtistResource;
 use App\Models\Banner;
 use App\Models\Category;
+use App\Models\MakeupArtistCancellationPolicy;
+use App\Models\MakeupArtistPaymentPolicy;
+use App\Models\MakeupArtistPhoto;
 use App\Models\MakeupArtistPost;
+use App\Models\MakeupArtistPricing;
+use App\Models\MakeupArtistProfile;
+use App\Models\PhotoAlbum;
+use App\Models\Rating;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -310,104 +317,105 @@ class HomeController extends BaseController
      *      @OA\Response(response=404, description="Resource Not Found"),
      * )
      */
+
+
     public function artistDetails($artist_id)
     {
+        $getArtist = User::where('id', $artist_id)->first();
+        $getArtistProfile = MakeupArtistProfile::where('artist_id', $artist_id)->first();
+        $countArtistPhotos = MakeupArtistPhoto::where('artist_id', $artist_id)->get()->count();
+        $getArtistTopPhoto = $this->profilePhoto("top-photos", $artist_id);
+        $getArtistBridalPhoto = $this->profilePhoto('bridal-makeup', $artist_id);
+        $getArtistEngagementPhoto = $this->profilePhoto('engagement-makeup', $artist_id);
+        $getArtistPartyPhoto = $this->profilePhoto('party-makeup', $artist_id);
+        $getArtistStudioPhoto = $this->profilePhoto('studio-photo', $artist_id);
+        $getArtistProfilePhoto = $this->profilePhoto('profile-photo', $artist_id);
+        $getArtistAchievementPhoto = $this->profilePhoto('achievement-photo', $artist_id);
+        $getArtistHairStylePhoto = $this->profilePhoto('hair-style-photo', $artist_id);
+        $getArtistMehendiPhoto = $this->profilePhoto('mehendi-photo', $artist_id);
+        $getArtistPricing = MakeupArtistPricing::with('pricingService')->where('artist_id', $artist_id)->get()->toArray();
+        $getArtistPaymentPolicies = MakeupArtistPaymentPolicy::where('artist_id', $artist_id)->get()->toArray();
+        $getArtistPaymentCancellationPolicies = MakeupArtistCancellationPolicy::where('artist_id', $artist_id)->get()->toArray();
+        $artistRating=Rating::where('artist_id',$artist_id)->count();
         try {
             $data = [
-                "artist_id" => 10,
-                "artist_name" => "Bapi Biswas",
-                "artist_email" => "Chakdha",
-                "artist_phone" => "Chakdha",
-                "artist_business_name" => "Chakdha",
-                "artist_business_email" => "Chakdha",
-                "artist_business_phone" => "Chakdha",
-                "artist_location" => "Chakdha",
-                "is_featured_artist" => true,
-                "artist_about" => "",
-                "artist_working_since" => 2022,
-                "artist_can_do_makeup_at" => true ? "Studio & your Venue both place" : "Only your Venue",
-                "artist_thumbnail" => "",
+                "artist_id" => $getArtist->id ?? '',
+                "artist_name" => $getArtist->full_name ?? '',
+                "artist_email" => $getArtist->email ?? '',
+                "artist_phone" => $getArtist->phone ?? '',
+                "artist_business_name" => $getArtistProfile->artist_business_name ?? '',
+                "artist_business_email" => $getArtistProfile->artist_business_email ?? '',
+                "artist_business_phone" => $getArtistProfile->artist_business_phone ?? '',
+                "artist_location" => $getArtistProfile->artist_location ?? '',
+                "is_featured_artist" => $getArtistProfile->is_featured_artist ?? '',
+                "artist_about" => $getArtistProfile->artist_about ?? '',
+                "artist_working_since" => $getArtistProfile->artist_working_since ?? '',
+                "artist_can_do_makeup_at" => $getArtistProfile->artist_can_do_makeup_at ?? '',
+                "artist_thumbnail" => config('app.url') . '/' . $getArtist->profile_photo_path,
                 "artist_photos" => [
-                    "top_photos" => [],
-                    "bridal_makeup" => [],
-                    "engagement_makeup" => [],
-                    "party_makeup" => [],
-                    "studio_photo" => [],
-                    "profile_photo" => [],
-                    "achievement_photo" => [],
-                    "hair_style_photo" => [],
-                    "mehandi_photo" => []
+                    "top_photos" => $getArtistTopPhoto,
+                    "bridal_makeup" => $getArtistBridalPhoto,
+                    "engagement_makeup" => $getArtistEngagementPhoto,
+                    "party_makeup" => $getArtistPartyPhoto,
+                    "studio_photo" => $getArtistStudioPhoto,
+                    "profile_photo" => $getArtistProfilePhoto,
+                    "achievement_photo" => $getArtistAchievementPhoto,
+                    "hair_style_photo" => $getArtistHairStylePhoto,
+                    "mehandi_photo" => $getArtistMehendiPhoto
                 ],
-                "artist_total_photos" => 30,
-                "pricing" => [
-                    [
-                        "service_id" => 1,
-                        "service_name" => "AIRBRUSH BRIDAL MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                    [
-                        "service_id" => 2,
-                        "service_name" => "BRIDAL MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                    [
-                        "service_id" => 3,
-                        "service_name" => "GUEST/FAMILY MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                    [
-                        "service_id" => 4,
-                        "service_name" => "TRIAL MAKEUP",
-                        "price" => 0.00,
-                        "description" => ""
-                    ],
-                ],
-                "payment_policy" => [
-                    ["50% - At the Time of booking"],
-                    ["50% - On Event date"],
-                    ["0% - After deliverables are delivered"]
-                ],
-                "cancellation_policy" => [
-                    ["No policy"]
-                ],
-                "total_ratings" => 5.0,
-                "total_reviews" => 3,
+                "artist_total_photos" => $countArtistPhotos,
+                "pricing" => $getArtistPricing,
+                "payment_policy" => $getArtistPaymentPolicies,
+                "cancellation_policy" => $getArtistPaymentCancellationPolicies,
+                "total_ratings" => $artistRating,
+                "total_reviews" => 0,
                 "reviews" => [
-                    [
-                        "user_id" => 15,
-                        "user_name" => "Demo",
-                        "user_avatar" => "",
-                        "ratings" => 4.0,
-                        "comment" => "",
-                        "date" => "12/12/2022"
-                    ],
-                    [
-                        "user_id" => 15,
-                        "user_name" => "Demo",
-                        "user_avatar" => "",
-                        "ratings" => 4.0,
-                        "comment" => "",
-                        "date" => "12/12/2022"
-                    ],
-                    [
-                        "user_id" => 15,
-                        "user_name" => "Demo",
-                        "user_avatar" => "",
-                        "ratings" => 4.0,
-                        "comment" => "",
-                        "date" => "12/12/2022"
-                    ],
+                    // [
+                    //     "user_id" => 15,
+                    //     "user_name" => "Demo",
+                    //     "user_avatar" => "",
+                    //     "ratings" => 4.0,
+                    //     "comment" => "",
+                    //     "date" => "12/12/2022"
+                    // ],
+                    // [
+                    //     "user_id" => 15,
+                    //     "user_name" => "Demo",
+                    //     "user_avatar" => "",
+                    //     "ratings" => 4.0,
+                    //     "comment" => "",
+                    //     "date" => "12/12/2022"
+                    // ],
+                    // [
+                    //     "user_id" => 15,
+                    //     "user_name" => "Demo",
+                    //     "user_avatar" => "",
+                    //     "ratings" => 4.0,
+                    //     "comment" => "",
+                    //     "date" => "12/12/2022"
+                    // ],
 
                 ]
             ];
 
             return $this->sendResponse($data, 'Artist Details retrieved successfully.');
         } catch (\Throwable $th) {
+            dd($th);
             Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError('Server Error!', [], 500);
         }
+    }
+
+    public function profilePhoto($slug, $artist_id)
+    {
+        if ($slug) {
+            $getAlbum = PhotoAlbum::where('slug', $slug)->first();
+            if ($getAlbum) {
+                $getPhoto = MakeupArtistPhoto::where('artist_id', $artist_id)->where('photo_album_id', $getAlbum->id)->get()->toArray();
+                return $getPhoto;
+            }
+            return [];
+        }
+        return [];
     }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\PricingCategory;
+use App\Models\PricingService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,7 +23,7 @@ class PricingCategorySeeder extends Seeder
             ['name' => 'TRIAL MAKEUP']
         ];
         foreach ($datas as $key => $value) {
-            PricingCategory::create($value);
+            PricingService::create($value);
         }
     }
 }

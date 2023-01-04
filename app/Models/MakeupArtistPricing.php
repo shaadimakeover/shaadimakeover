@@ -8,5 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class MakeupArtistPricing extends Model
 {
     use HasFactory;
-    protected $fillable = ['expert_id', 'price', 'person'];
+    protected $fillable = ['artist_id', 'pricing_service_id', 'price', 'description'];
+
+    public function pricingService()
+    {
+        return $this->belongsTo(PricingService::class, 'pricing_service_id');
+    }
 }
