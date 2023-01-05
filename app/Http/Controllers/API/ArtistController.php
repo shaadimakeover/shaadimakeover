@@ -56,14 +56,13 @@ class ArtistController extends BaseController
      * )
      */
 
-    public function updateArtist(Request $request)
+    public function updateArtistBusinessProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'artist_business_name' => ['required', 'string'],
             'artist_business_email' => ['required',  'email:rfc,dns'],
             'artist_business_phone' => ['required', 'digits_between:8,15', 'numeric'],
             'artist_location' => ['required', 'string'],
-            'is_featured_artist' => ['required', 'in:0,1'],
             'artist_about' => ['required'],
             "artist_working_since"  =>  ["required"],
             "artist_can_do_makeup_at"  =>  ["required", "in:0,1"],
@@ -82,7 +81,6 @@ class ArtistController extends BaseController
                     'artist_business_email' => $request->artist_business_email,
                     'artist_business_phone' => $request->artist_business_phone,
                     'artist_location' => $request->artist_location,
-                    'is_featured_artist' => $request->is_featured_artist,
                     'artist_about' => $request->artist_about,
                     'artist_working_since' => $request->artist_working_since,
                     'artist_can_do_makeup_at' => $request->artist_can_do_makeup_at
@@ -94,7 +92,6 @@ class ArtistController extends BaseController
                     'artist_business_email' => $request->artist_business_email,
                     'artist_business_phone' => $request->artist_business_phone,
                     'artist_location' => $request->artist_location,
-                    'is_featured_artist' => $request->is_featured_artist,
                     'artist_about' => $request->artist_about,
                     'artist_working_since' => $request->artist_working_since,
                     'artist_can_do_makeup_at' => $request->artist_can_do_makeup_at
@@ -103,7 +100,7 @@ class ArtistController extends BaseController
 
             if (!is_null($user)) {
                 DB::commit();
-                return $this->sendResponse($user, 'Your profile update successfully.', 200);
+                return $this->sendResponse($user, 'Your profile update successfully.', 201);
             } else {
                 return $this->sendError('Your profile update failed!', [], 400);
             }
@@ -114,13 +111,13 @@ class ArtistController extends BaseController
         }
     }
 
+
     public function photoAlbum()
     {
         try {
             $album = PhotoAlbum::select('id', 'name', 'slug')->get();
             if ($album->isNotEmpty()) {
                 return $this->sendResponse($album, 'Album retrieved successfully.');
-                //return $this->sendResponse($bannerImage, 'Banner retrieved successfully.');
             } else {
                 return $this->sendError("Oops! no Album found", [], 404);
             }
@@ -147,26 +144,15 @@ class ArtistController extends BaseController
             $final_image_url = '';
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $path = 'profile';
+                $path = 'artist-photos';
                 $final_image_url = ImageHelper::customSaveImage($file, $path);
-                // dd($final_image_url);
             }
 
-            // $user = MakeupArtistPhoto::where('artist_id', Auth::id())->first();
-
-            // if ($user) {
-            //     $user->update([
-            //         'photo_album_id' => $request->photo_album_id,
-            //         'photo' => $final_image_url,
-            //     ]);
-            // } else {
             $user = MakeupArtistPhoto::create([
                 'artist_id' => Auth::id(),
                 'photo_album_id' => $request->photo_album_id,
                 'photo' => $final_image_url,
             ]);
-            // }
-
             if (!is_null($user)) {
                 DB::commit();
                 return $this->sendResponse($user, 'Your profile update successfully.', 200);
@@ -180,13 +166,31 @@ class ArtistController extends BaseController
         }
     }
 
+    public function artistPhotoDelete($photo_id)
+    {
+        try {
+            $photo = MakeupArtistPhoto::where('id', $photo_id)->where('artist_id', Auth::id())->first();
+            if ($photo) {
+                if ($photo->photo) {
+                    unlink($photo->photo);
+                }
+                $photo->delete();
+                return $this->sendResponse([], 'Photo Deleted successfully.');
+            } else {
+                return $this->sendError("Oops! no photo found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
     public function priceService()
     {
         try {
             $service = PricingService::select('id', 'name')->get();
             if ($service->isNotEmpty()) {
                 return $this->sendResponse($service, 'Service retrieved successfully.');
-                //return $this->sendResponse($bannerImage, 'Banner retrieved successfully.');
             } else {
                 return $this->sendError("Oops! no service found", [], 404);
             }
@@ -196,7 +200,7 @@ class ArtistController extends BaseController
         }
     }
 
-    public function artistPrice(Request $request)
+    public function storeArtistPrice(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'pricing_service_id' => 'required|exists:pricing_services,id',
@@ -210,31 +214,16 @@ class ArtistController extends BaseController
 
         DB::beginTransaction();
         try {
-            // $user = MakeupArtistPricing::updateOrCreate(
-            //     ['artist_id' => Auth::id()],
-            //     ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
-            // );
-            // $user = MakeupArtistPricing::where('artist_id', Auth::id())->get();
-            // if ($user->isNotEmpty()) {
-            //     foreach ($user as $item) {
-            //         $item->update([
-            //             'pricing_service_id' => $request->pricing_service_id,
-            //             'price' => $request->price,
-            //             'description' => $request->description,
-            //         ]);
-            //     }
-            // } else {
             $user = MakeupArtistPricing::create([
                 'artist_id' => Auth::id(),
                 'pricing_service_id' => $request->pricing_service_id,
                 'price' => $request->price,
                 'description' => $request->description
             ]);
-            // }
 
             if (!is_null($user)) {
                 DB::commit();
-                return $this->sendResponse($user, 'Your pricing update successfully.', 200);
+                return $this->sendResponse($user, 'Your pricing update successfully.', 201);
             } else {
                 return $this->sendError('Your pricing update failed!', [], 400);
             }
@@ -245,12 +234,12 @@ class ArtistController extends BaseController
         }
     }
 
-
-    public function paymentPolicy(Request $request)
+    public function updateArtistPrice(Request $request, $price_id)
     {
         $validator = Validator::make($request->all(), [
-            'percentage_of_pay' => 'required|numeric|max:255',
-            'time_to_pay' => 'required|numeric|max:255',
+            'pricing_service_id' => 'required|exists:pricing_services,id',
+            'price' => ['required', 'regex:/^\d*(\.\d{2})?$/'],
+            'description' => ['required'],
         ]);
 
         if ($validator->fails()) {
@@ -259,26 +248,60 @@ class ArtistController extends BaseController
 
         DB::beginTransaction();
         try {
-            // $user = MakeupArtistPricing::updateOrCreate(
-            //     ['artist_id' => Auth::id()],
-            //     ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
-            // );
-            // $user = MakeupArtistPricing::where('artist_id', Auth::id())->get();
-            // if ($user->isNotEmpty()) {
-            //     foreach ($user as $item) {
-            //         $item->update([
-            //             'pricing_service_id' => $request->pricing_service_id,
-            //             'price' => $request->price,
-            //             'description' => $request->description,
-            //         ]);
-            //     }
-            // } else {
+            $pricing = MakeupArtistPricing::where('id', $price_id)->where('artist_id', Auth::id())->first();
+            if ($pricing) {
+                $pricing->update([
+                    'pricing_service_id' => $request->pricing_service_id,
+                    'price' => $request->price,
+                    'description' => $request->description
+                ]);
+                $result = MakeupArtistPricing::where('id', $price_id)->where('artist_id', Auth::id())->first();
+                DB::commit();
+                return $this->sendResponse($result, 'Your pricing update successfully.', 201);
+            } else {
+                return $this->sendError('No pricing found', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError($th->getMessage(), [], 500);
+        }
+    }
+
+    public function deleteArtistPrice($price_id)
+    {
+        try {
+            $price = MakeupArtistPricing::where('id', $price_id)->where('artist_id', Auth::id())->first();
+            if ($price) {
+                $price->delete();
+                return $this->sendResponse([], 'Pricing deleted successfully.');
+            } else {
+                return $this->sendError("Oops! no price found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    public function storePaymentPolicy(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'percentage_of_pay' => 'required|numeric|max:255',
+            'time_to_pay' => 'required|in:AT THE TIME OF BOOKING,ON EVENT DATE,AFTER DELIVERABLES ARE DELIVERED',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        DB::beginTransaction();
+        try {
             $user = MakeupArtistPaymentPolicy::create([
                 'artist_id' => Auth::id(),
                 'percentage_of_pay' => $request->percentage_of_pay,
                 'time_to_pay' => $request->time_to_pay
             ]);
-            // }
 
             if (!is_null($user)) {
                 DB::commit();
@@ -292,11 +315,12 @@ class ArtistController extends BaseController
             return $this->sendError($th->getMessage(), [], 500);
         }
     }
-    
-    public function cancellationPolicy(Request $request)
+
+    public function updatePaymentPolicy(Request $request, $payment_policy_id)
     {
         $validator = Validator::make($request->all(), [
-            'cancellation_policy' => 'required',
+            'percentage_of_pay' => 'required|numeric|max:255',
+            'time_to_pay' => 'required|in:AT THE TIME OF BOOKING,ON EVENT DATE,AFTER DELIVERABLES ARE DELIVERED',
         ]);
 
         if ($validator->fails()) {
@@ -305,26 +329,57 @@ class ArtistController extends BaseController
 
         DB::beginTransaction();
         try {
-            // $user = MakeupArtistPricing::updateOrCreate(
-            //     ['artist_id' => Auth::id()],
-            //     ['pricing_service_id' => $request->pricing_service_id, 'price' => $request->price, 'description' => $request->description]
-            // );
-            // $user = MakeupArtistPricing::where('artist_id', Auth::id())->get();
-            // if ($user->isNotEmpty()) {
-            //     foreach ($user as $item) {
-            //         $item->update([
-            //             'pricing_service_id' => $request->pricing_service_id,
-            //             'price' => $request->price,
-            //             'description' => $request->description,
-            //         ]);
-            //     }
-            // } else {
+            $pricing = MakeupArtistPaymentPolicy::where('id', $payment_policy_id)->where('artist_id', Auth::id())->first();
+            if ($pricing) {
+                $pricing->update([
+                    'percentage_of_pay' => $request->percentage_of_pay,
+                    'time_to_pay' => $request->time_to_pay
+                ]);
+                $result = MakeupArtistPaymentPolicy::where('id', $payment_policy_id)->where('artist_id', Auth::id())->first();
+                DB::commit();
+                return $this->sendResponse($result, 'Your pricing policy update successfully.', 201);
+            } else {
+                return $this->sendError('No pricing found', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError($th->getMessage(), [], 500);
+        }
+    }
+
+    public function deletePaymentPolicy($payment_policy_id)
+    {
+        try {
+            $policy = MakeupArtistPaymentPolicy::where('id', $payment_policy_id)->where('artist_id', Auth::id())->first();
+            if ($policy) {
+                $policy->delete();
+                return $this->sendResponse([], 'Payment policy deleted successfully.');
+            } else {
+                return $this->sendError("Oops! no policy found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
+        }
+    }
+
+    public function storeCancellationPolicy(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'cancellation_policy' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        DB::beginTransaction();
+        try {
             $user = MakeupArtistCancellationPolicy::create([
                 'artist_id' => Auth::id(),
                 'cancellation_policy' => $request->cancellation_policy
             ]);
-            // }
-
             if (!is_null($user)) {
                 DB::commit();
                 return $this->sendResponse($user, 'Your Cancellation policy update successfully.', 200);
@@ -335,6 +390,52 @@ class ArtistController extends BaseController
             DB::rollBack();
             Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
             return $this->sendError($th->getMessage(), [], 500);
+        }
+    }
+
+    public function updateCancellationPolicy(Request $request, $payment_cancellation_id)
+    {
+        $validator = Validator::make($request->all(), [
+            'cancellation_policy' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $cancellationPolicy = MakeupArtistCancellationPolicy::where('id', $payment_cancellation_id)->where('artist_id', Auth::id())->first();
+            if ($cancellationPolicy) {
+                $cancellationPolicy->update([
+                    'cancellation_policy' => $request->cancellation_policy,
+                ]);
+                $result = MakeupArtistCancellationPolicy::where('id', $payment_cancellation_id)->where('artist_id', Auth::id())->first();
+                DB::commit();
+                return $this->sendResponse($result, 'Your cancellation policy update successfully.', 201);
+            } else {
+                return $this->sendError('No pricing found', [], 400);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error(" :: PROFILE UPDATE EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError($th->getMessage(), [], 500);
+        }
+    }
+
+    public function deleteCancellationPolicy($payment_cancellation_id)
+    {
+        try {
+            $cancellationPolicy = MakeupArtistCancellationPolicy::where('id', $payment_cancellation_id)->where('artist_id', Auth::id())->first();
+            if ($cancellationPolicy) {
+                $cancellationPolicy->delete();
+                return $this->sendResponse([], 'Cancellation policy deleted successfully.');
+            } else {
+                return $this->sendError("Oops! no cancellation policy found", [], 404);
+            }
+        } catch (\Throwable $th) {
+            Log::error(" :: EXCEPTION :: " . $th->getMessage() . "\n" . $th->getTraceAsString());
+            return $this->sendError('Server Error!', [], 500);
         }
     }
 }
