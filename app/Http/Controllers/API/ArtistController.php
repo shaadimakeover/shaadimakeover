@@ -22,32 +22,34 @@ use Stripe\Service\PriceService;
 
 class ArtistController extends BaseController
 {
+
     /**
      * @OA\Post(
-     * path="/api/artist-profile-update",
-     * operationId="Artist Profile Update",
-     * tags={"Artist profile Update"},
-     * summary="Artist Profile Update",
+     * path="/api/update-artist-business-profile",
+     * operationId="Update Makeup artist",
+     * tags={"Update Make up artist"},
+     * summary="Update artist",
      * security={{"sanctum":{}}},
-     * description="Artist Profile Update here",
+     * description="Update artist here",
      *     @OA\RequestBody(
      *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
      *            @OA\Schema(
      *               type="object",
-     *               required={"artist_business_name","artist_business_email","artist_business_phone","artist_location","is_featured_artist","artist_about","artist_working_since","artist_can_do_makeup_at"},
-     *               @OA\Property(property="artist_business_name", type="string"),
+     *               required={"artist_business_name","artist_business_email","artist_business_phone","artist_location","artist_about","artist_working_since","artist_can_do_makeup_at"},
+     *                 @OA\Property(property="artist_business_name", type="string"),
      *               @OA\Property(property="artist_business_email", type="email"),
      *               @OA\Property(property="artist_business_phone", type="number"),
      *               @OA\Property(property="artist_location", type="string"),
-     *               @OA\Property(property="is_featured_artist",  type="boolean", example="true"),
      *               @OA\Property(property="artist_about", type="text"),
      *               @OA\Property(property="artist_working_since", type="number"),
-     *               @OA\Property(property="artist_can_do_makeup_at",  type="boolean", example="true"),
+     *               @OA\Property(property="artist_can_do_makeup_at",  type="number",description="1=Studio & your Venue both place,0=Only your Venue"),
      *            ),
      *        ),
      *    ),
      *      @OA\Response(
-     *          response=200,
+     *          response=201,
      *          description="Your profile update successfully.",
      *          @OA\JsonContent()
      *       ),
@@ -55,6 +57,7 @@ class ArtistController extends BaseController
      *      @OA\Response(response=404, description="Resource Not Found"),
      * )
      */
+
 
     public function updateArtistBusinessProfile(Request $request)
     {
@@ -111,6 +114,25 @@ class ArtistController extends BaseController
         }
     }
 
+     /**
+     * @OA\Get(
+     * path="/api/photo-album",
+     * operationId="Photo Album",
+     * tags={"Make up artist Photo Album"},
+     * summary="Make up artist Photo Album Details Fetch",
+     * security={{"sanctum":{}}},
+     * description="Get Make up artist Photo Album Details ",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Album retrieved successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+
 
     public function photoAlbum()
     {
@@ -126,6 +148,37 @@ class ArtistController extends BaseController
             return $this->sendError('Server Error!', [], 500);
         }
     }
+
+     /**
+     * @OA\Post(
+     * path="/api/artist-photo-upload",
+     * operationId="Make up artist photo upload",
+     * tags={"Artist Photo Upload"},
+     * summary="Artist Photo Upload",
+     * security={{"sanctum":{}}},
+     * description="Artist Photo Upload here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"photo_album_id","photo"},
+     *                 @OA\Property(property="photo_album_id", type="number"),
+     *               @OA\Property(property="photo", type="file"),
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your Photo upload successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
 
     public function artistPhotoUpload(Request $request)
     {
@@ -185,6 +238,24 @@ class ArtistController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     * path="/api/pricing-service",
+     * operationId="Pricing Service",
+     * tags={"Make up artist Pricing Service"},
+     * summary="Make up artist Pricing Service Details Fetch",
+     * security={{"sanctum":{}}},
+     * description="Get Make up artist Pricing Service Details ",
+     *      @OA\Response(
+     *          response=201,
+     *          description="Pricing Service retrieved successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
     public function priceService()
     {
         try {
@@ -199,6 +270,38 @@ class ArtistController extends BaseController
             return $this->sendError('Server Error!', [], 500);
         }
     }
+
+      /**
+     * @OA\Post(
+     * path="/api/add-artist-pricing",
+     * operationId="add-artist-pricing",
+     * tags={"Artist Pricing Add"},
+     * summary="Artist Pricing Add",
+     * security={{"sanctum":{}}},
+     * description="Artist Pricing Add here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"pricing_service_id","price","description"},
+     *                 @OA\Property(property="pricing_service_id", type="number"),
+     *               @OA\Property(property="price", type="number"),
+     *               @OA\Property(property="description", type="text"),
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your pricing update successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
 
     public function storeArtistPrice(Request $request)
     {
@@ -284,6 +387,37 @@ class ArtistController extends BaseController
         }
     }
 
+      /**
+     * @OA\Post(
+     * path="/api/add-artist-payment-policy",
+     * operationId="add-artist-payment-policy",
+     * tags={"Artist Payment Policy Add"},
+     * summary="Artist Payment Policy Add",
+     * security={{"sanctum":{}}},
+     * description="Artist Payment Policy Add here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"percentage_of_pay","time_to_pay"},
+     *                 @OA\Property(property="percentage_of_pay", type="number"),
+     *               @OA\Property(property="time_to_pay", type="string",example="AT THE TIME OF BOOKING",description="AT THE TIME OF BOOKING, ON EVENT DATE, AFTER DELIVERABLES ARE DELIVERED"),
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your Payment Policy Added successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
     public function storePaymentPolicy(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -363,6 +497,37 @@ class ArtistController extends BaseController
             return $this->sendError('Server Error!', [], 500);
         }
     }
+
+       /**
+     * @OA\Post(
+     * path="/api/add-artist-cancellation-policy",
+     * operationId="add-artist-cancellation-policy",
+     * tags={"Artist Cancellation Policy Add"},
+     * summary="Artist Cancellation Policy Add",
+     * security={{"sanctum":{}}},
+     * description="Artist Cancellation Policy Add here",
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"cancellation_policy"},
+     *                 @OA\Property(property="cancellation_policy", type="text",example="No Cancellation Policy"),
+     *              
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your Cancellation Policy update successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
 
     public function storeCancellationPolicy(Request $request)
     {
