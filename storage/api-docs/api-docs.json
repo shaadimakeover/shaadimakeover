@@ -19,6 +19,367 @@
         }
     ],
     "paths": {
+        "/api/update-artist-business-profile": {
+            "post": {
+                "tags": [
+                    "Update Make up artist"
+                ],
+                "summary": "Update artist",
+                "description": "Update artist here",
+                "operationId": "Update Makeup artist",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "artist_business_name",
+                                    "artist_business_email",
+                                    "artist_business_phone",
+                                    "artist_location",
+                                    "artist_about",
+                                    "artist_working_since",
+                                    "artist_can_do_makeup_at"
+                                ],
+                                "properties": {
+                                    "artist_business_name": {
+                                        "type": "string"
+                                    },
+                                    "artist_business_email": {
+                                        "type": "email"
+                                    },
+                                    "artist_business_phone": {
+                                        "type": "number"
+                                    },
+                                    "artist_location": {
+                                        "type": "string"
+                                    },
+                                    "artist_about": {
+                                        "type": "text"
+                                    },
+                                    "artist_working_since": {
+                                        "type": "number"
+                                    },
+                                    "artist_can_do_makeup_at": {
+                                        "description": "1=Studio & your Venue both place,0=Only your Venue",
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your profile update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/photo-album": {
+            "get": {
+                "tags": [
+                    "Make up artist Photo Album"
+                ],
+                "summary": "Make up artist Photo Album Details Fetch",
+                "description": "Get Make up artist Photo Album Details ",
+                "operationId": "Photo Album",
+                "responses": {
+                    "201": {
+                        "description": "Album retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/artist-photo-upload": {
+            "post": {
+                "tags": [
+                    "Artist Photo Upload"
+                ],
+                "summary": "Artist Photo Upload",
+                "description": "Artist Photo Upload here",
+                "operationId": "Make up artist photo upload",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "photo_album_id",
+                                    "photo"
+                                ],
+                                "properties": {
+                                    "photo_album_id": {
+                                        "type": "number"
+                                    },
+                                    "photo": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your Photo upload successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/pricing-service": {
+            "get": {
+                "tags": [
+                    "Make up artist Pricing Service"
+                ],
+                "summary": "Make up artist Pricing Service Details Fetch",
+                "description": "Get Make up artist Pricing Service Details ",
+                "operationId": "Pricing Service",
+                "responses": {
+                    "201": {
+                        "description": "Pricing Service retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/add-artist-pricing": {
+            "post": {
+                "tags": [
+                    "Artist Pricing Add"
+                ],
+                "summary": "Artist Pricing Add",
+                "description": "Artist Pricing Add here",
+                "operationId": "add-artist-pricing",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pricing_service_id",
+                                    "price",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "pricing_service_id": {
+                                        "type": "number"
+                                    },
+                                    "price": {
+                                        "type": "number"
+                                    },
+                                    "description": {
+                                        "type": "text"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your pricing update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/add-artist-payment-policy": {
+            "post": {
+                "tags": [
+                    "Artist Payment Policy Add"
+                ],
+                "summary": "Artist Payment Policy Add",
+                "description": "Artist Payment Policy Add here",
+                "operationId": "add-artist-payment-policy",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "percentage_of_pay",
+                                    "time_to_pay"
+                                ],
+                                "properties": {
+                                    "percentage_of_pay": {
+                                        "type": "number"
+                                    },
+                                    "time_to_pay": {
+                                        "description": "AT THE TIME OF BOOKING, ON EVENT DATE, AFTER DELIVERABLES ARE DELIVERED",
+                                        "type": "string",
+                                        "example": "AT THE TIME OF BOOKING"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your Payment Policy Added successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/add-artist-cancellation-policy": {
+            "post": {
+                "tags": [
+                    "Artist Cancellation Policy Add"
+                ],
+                "summary": "Artist Cancellation Policy Add",
+                "description": "Artist Cancellation Policy Add here",
+                "operationId": "add-artist-cancellation-policy",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "cancellation_policy"
+                                ],
+                                "properties": {
+                                    "cancellation_policy": {
+                                        "type": "text",
+                                        "example": "No Cancellation Policy"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your Cancellation Policy update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/social-login": {
             "post": {
                 "tags": [

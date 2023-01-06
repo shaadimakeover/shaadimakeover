@@ -38,11 +38,34 @@ Route::middleware('auth:sanctum')->group(function () {
         // Route::get('artist-details/{artist_id}', 'artistDetails');
 
     });
-    Route::post('artist-profile-update', [ArtistController::class, 'updateArtist']);
-    Route::get('photo-album', [ArtistController::class, 'photoAlbum']);
-    Route::post('artist-photo-upload', [ArtistController::class, 'artistPhotoUpload']);
-    Route::get('pricing-service', [ArtistController::class, 'priceService']);
-    Route::post('artist-pricing', [ArtistController::class, 'artistPrice']);
+
+    Route::controller(ArtistController::class)->group(function () {
+
+        //Update Artist
+        Route::post('update-artist-business-profile', 'updateArtistBusinessProfile');
+
+        // Upload Artist Photo Album
+        Route::get('photo-album', 'photoAlbum');
+        Route::post('artist-photo-upload', 'artistPhotoUpload');
+        Route::delete('artist-photo-delete/{photo_id}', 'artistPhotoDelete');
+
+        //Upload Artist Pricing
+        Route::get('pricing-service',  'priceService');
+        Route::post('add-artist-pricing',  'storeArtistPrice');
+        Route::post('edit-artist-pricing/{price_id}',  'updateArtistPrice');
+        Route::delete('delete-artist-pricing/{price_id}',  'deleteArtistPrice');
+
+        //Upload Artist Payment Policy
+        Route::post('add-artist-payment-policy',  'storePaymentPolicy');
+        Route::post('edit-artist-payment-policy/{payment_policy_id}',  'updatePaymentPolicy');
+        Route::delete('delete-artist-payment-policy/{payment_policy_id}',  'deletePaymentPolicy');
+
+        //Update Cancellation Policy
+
+        Route::post('add-artist-cancellation-policy',  'storeCancellationPolicy');
+        Route::post('edit-artist-cancellation-policy/{payment_cancellation_id}',  'updateCancellationPolicy');
+        Route::delete('delete-artist-cancellation-policy/{payment_cancellation_id}',  'deleteCancellationPolicy');
+    });
 });
 
 Route::get('artist-details/{artist_id}', [HomeController::class, 'artistDetails']);
