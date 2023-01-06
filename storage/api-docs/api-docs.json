@@ -181,6 +181,49 @@
                 ]
             }
         },
+        "/api/artist-photo-delete/{photo_id}": {
+            "get": {
+                "tags": [
+                    "Artist Photo Delete"
+                ],
+                "summary": "Artist Photo delete Fetch",
+                "description": "Artist Photo delete ",
+                "operationId": "Artist Photo delete",
+                "parameters": [
+                    {
+                        "name": "photo_id",
+                        "in": "path",
+                        "description": "Photo id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Photo deleted successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/pricing-service": {
             "get": {
                 "tags": [
@@ -271,6 +314,120 @@
                 ]
             }
         },
+        "/api/edit-artist-pricing/{price_id}": {
+            "post": {
+                "tags": [
+                    "Edit Artist Pricing"
+                ],
+                "summary": "Edit Artist Pricing",
+                "description": "Edit Artist Pricing here",
+                "operationId": "edit-artist-pricing",
+                "parameters": [
+                    {
+                        "name": "price_id",
+                        "in": "path",
+                        "description": "Price id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pricing_service_id",
+                                    "price",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "pricing_service_id": {
+                                        "type": "number"
+                                    },
+                                    "price": {
+                                        "type": "number"
+                                    },
+                                    "description": {
+                                        "type": "text"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your pricing update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/delete-artist-pricing/{price_id}": {
+            "get": {
+                "tags": [
+                    "Artist Pricing delete"
+                ],
+                "summary": "Artist Pricing delete",
+                "description": "Artist Pricing delete ",
+                "operationId": "Artist Pricing delete",
+                "parameters": [
+                    {
+                        "name": "price_id",
+                        "in": "path",
+                        "description": "Price Id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Price deleted successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/add-artist-payment-policy": {
             "post": {
                 "tags": [
@@ -328,6 +485,118 @@
                 ]
             }
         },
+        "/api/edit-artist-payment-policy/{payment_policy_id}": {
+            "post": {
+                "tags": [
+                    "Edit Artist Payment Policy"
+                ],
+                "summary": "Edit Artist Payment Policy",
+                "description": "Edit Artist Payment Policy here",
+                "operationId": "edit-artist-Payment Policy",
+                "parameters": [
+                    {
+                        "name": "payment_policy_id",
+                        "in": "path",
+                        "description": "Payment Policy id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "percentage_of_pay",
+                                    "time_to_pay"
+                                ],
+                                "properties": {
+                                    "percentage_of_pay": {
+                                        "type": "number"
+                                    },
+                                    "time_to_pay": {
+                                        "description": "AT THE TIME OF BOOKING, ON EVENT DATE, AFTER DELIVERABLES ARE DELIVERED",
+                                        "type": "string",
+                                        "example": "AT THE TIME OF BOOKING"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your pricing update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/delete-artist-payment-policy/{payment_policy_id}": {
+            "get": {
+                "tags": [
+                    "Artist Payment Policy delete"
+                ],
+                "summary": "Artist Payment Policy delete",
+                "description": "Artist Payment Policy delete ",
+                "operationId": "Artist Payment Policy delete",
+                "parameters": [
+                    {
+                        "name": "payment_policy_id",
+                        "in": "path",
+                        "description": "Payment Policy Id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment Policy deleted successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/add-artist-cancellation-policy": {
             "post": {
                 "tags": [
@@ -360,6 +629,113 @@
                 "responses": {
                     "201": {
                         "description": "Your Cancellation Policy update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/edit-artist-cancellation-policy/{payment_cancellation_id}": {
+            "post": {
+                "tags": [
+                    "Edit Artist Payment Cancellation Policy"
+                ],
+                "summary": "Edit Artist Payment Cancellation Policy",
+                "description": "Edit Artist Payment Cancellation Policy here",
+                "operationId": "edit-artist-Payment Cancellation",
+                "parameters": [
+                    {
+                        "name": "payment_cancellation_id",
+                        "in": "path",
+                        "description": "Payment Cancellation Id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "cancellation_policy"
+                                ],
+                                "properties": {
+                                    "cancellation_policy": {
+                                        "type": "text",
+                                        "example": "No Cancellation Policy"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Your Payment Cancellation Policy update successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/delete-artist-cancellation-policy/{payment_cancellation_id}": {
+            "get": {
+                "tags": [
+                    "Artist Payment cancellation Policy delete"
+                ],
+                "summary": "Artist Payment cancellation Policy delete",
+                "description": "Artist Payment cancellation Policy delete ",
+                "operationId": "Artist cancellation Policy delete",
+                "parameters": [
+                    {
+                        "name": "payment_cancellation_id",
+                        "in": "path",
+                        "description": "Payment cancellation Policy Id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Payment cancellation Policy deleted successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {}
@@ -973,7 +1349,7 @@
                 }
             }
         },
-        "/api/artist-details": {
+        "/api/artist-details/{artist_id}": {
             "get": {
                 "tags": [
                     "Artist Details"
