@@ -294,7 +294,7 @@ class HomeController extends BaseController
 
     /**
      * @OA\Get(
-     * path="/api/artist-details",
+     * path="/api/artist-details/{artist_id}",
      * operationId="Artist",
      * tags={"Artist Details"},
      * summary="Artist Full Details Fetch",
@@ -322,6 +322,9 @@ class HomeController extends BaseController
     public function artistDetails($artist_id)
     {
         $getArtist = User::where('id', $artist_id)->first();
+        if (!$getArtist) {
+            return $this->sendResponse([], 'No Artist Found');
+        }
         $getArtistProfile = MakeupArtistProfile::where('artist_id', $artist_id)->first();
         $countArtistPhotos = MakeupArtistPhoto::where('artist_id', $artist_id)->get()->count();
         $getArtistTopPhoto = $this->profilePhoto("top-photos", $artist_id);
@@ -336,7 +339,7 @@ class HomeController extends BaseController
         $getArtistPricing = MakeupArtistPricing::with('pricingService')->where('artist_id', $artist_id)->get()->toArray();
         $getArtistPaymentPolicies = MakeupArtistPaymentPolicy::where('artist_id', $artist_id)->get()->toArray();
         $getArtistPaymentCancellationPolicies = MakeupArtistCancellationPolicy::where('artist_id', $artist_id)->get()->toArray();
-        $artistRating=Rating::where('artist_id',$artist_id)->count();
+        $artistRating = Rating::where('artist_id', $artist_id)->count();
         try {
             $data = [
                 "artist_id" => $getArtist->id ?? '',

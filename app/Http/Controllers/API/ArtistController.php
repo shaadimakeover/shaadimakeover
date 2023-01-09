@@ -114,7 +114,7 @@ class ArtistController extends BaseController
         }
     }
 
-     /**
+    /**
      * @OA\Get(
      * path="/api/photo-album",
      * operationId="Photo Album",
@@ -149,7 +149,7 @@ class ArtistController extends BaseController
         }
     }
 
-     /**
+    /**
      * @OA\Post(
      * path="/api/artist-photo-upload",
      * operationId="Make up artist photo upload",
@@ -219,6 +219,35 @@ class ArtistController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     * path="/api/artist-photo-delete/{photo_id}",
+     * operationId="Artist Photo delete",
+     * tags={"Artist Photo Delete"},
+     * summary="Artist Photo delete Fetch",
+     *  security={{"sanctum":{}}},
+     * description="Artist Photo delete ",
+     * @OA\Parameter(
+     *          name="photo_id",
+     *          description="Photo id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Photo deleted successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
+
     public function artistPhotoDelete($photo_id)
     {
         try {
@@ -271,7 +300,7 @@ class ArtistController extends BaseController
         }
     }
 
-      /**
+    /**
      * @OA\Post(
      * path="/api/add-artist-pricing",
      * operationId="add-artist-pricing",
@@ -337,6 +366,49 @@ class ArtistController extends BaseController
         }
     }
 
+     /**
+     * @OA\Post(
+     * path="/api/edit-artist-pricing/{price_id}",
+     * operationId="edit-artist-pricing",
+     * tags={"Edit Artist Pricing"},
+     * summary="Edit Artist Pricing",
+     * security={{"sanctum":{}}},
+     * description="Edit Artist Pricing here",
+     *  @OA\Parameter(
+     *          name="price_id",
+     *          description="Price id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"pricing_service_id","price","description"},
+     *                 @OA\Property(property="pricing_service_id", type="number"),
+     *               @OA\Property(property="price", type="number"),
+     *               @OA\Property(property="description", type="text"),
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your pricing update successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
     public function updateArtistPrice(Request $request, $price_id)
     {
         $validator = Validator::make($request->all(), [
@@ -371,6 +443,34 @@ class ArtistController extends BaseController
         }
     }
 
+     /**
+     * @OA\Get(
+     * path="/api/delete-artist-pricing/{price_id}",
+     * operationId="Artist Pricing delete",
+     * tags={"Artist Pricing delete"},
+     * summary="Artist Pricing delete",
+     *  security={{"sanctum":{}}},
+     * description="Artist Pricing delete ",
+     * @OA\Parameter(
+     *          name="price_id",
+     *          description="Price Id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Price deleted successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
     public function deleteArtistPrice($price_id)
     {
         try {
@@ -387,7 +487,7 @@ class ArtistController extends BaseController
         }
     }
 
-      /**
+    /**
      * @OA\Post(
      * path="/api/add-artist-payment-policy",
      * operationId="add-artist-payment-policy",
@@ -431,17 +531,21 @@ class ArtistController extends BaseController
 
         DB::beginTransaction();
         try {
-            $user = MakeupArtistPaymentPolicy::create([
-                'artist_id' => Auth::id(),
-                'percentage_of_pay' => $request->percentage_of_pay,
-                'time_to_pay' => $request->time_to_pay
-            ]);
-
-            if (!is_null($user)) {
-                DB::commit();
-                return $this->sendResponse($user, 'Your payment policy update successfully.', 200);
+            $countPaymentPolicy = MakeupArtistPaymentPolicy::where('artist_id', Auth::id())->count();
+            if ($countPaymentPolicy <= 3) {
+                $user = MakeupArtistPaymentPolicy::create([
+                    'artist_id' => Auth::id(),
+                    'percentage_of_pay' => $request->percentage_of_pay,
+                    'time_to_pay' => $request->time_to_pay
+                ]);
+                if (!is_null($user)) {
+                    DB::commit();
+                    return $this->sendResponse($user, 'Your payment policy update successfully.', 200);
+                } else {
+                    return $this->sendError('Your payment policy update failed!', [], 400);
+                }
             } else {
-                return $this->sendError('Your payment policy update failed!', [], 400);
+                return $this->sendError('You can not add more than three policy', [], 400);
             }
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -449,6 +553,49 @@ class ArtistController extends BaseController
             return $this->sendError($th->getMessage(), [], 500);
         }
     }
+
+
+    /**
+     * @OA\Post(
+     * path="/api/edit-artist-payment-policy/{payment_policy_id}",
+     * operationId="edit-artist-Payment Policy",
+     * tags={"Edit Artist Payment Policy"},
+     * summary="Edit Artist Payment Policy",
+     * security={{"sanctum":{}}},
+     * description="Edit Artist Payment Policy here",
+     *  @OA\Parameter(
+     *          name="payment_policy_id",
+     *          description="Payment Policy id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"percentage_of_pay","time_to_pay"},
+     *                 @OA\Property(property="percentage_of_pay", type="number"),
+     *               @OA\Property(property="time_to_pay", type="string",example="AT THE TIME OF BOOKING",description="AT THE TIME OF BOOKING, ON EVENT DATE, AFTER DELIVERABLES ARE DELIVERED"),
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your pricing update successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
 
     public function updatePaymentPolicy(Request $request, $payment_policy_id)
     {
@@ -482,6 +629,35 @@ class ArtistController extends BaseController
         }
     }
 
+
+     /**
+     * @OA\Get(
+     * path="/api/delete-artist-payment-policy/{payment_policy_id}",
+     * operationId="Artist Payment Policy delete",
+     * tags={"Artist Payment Policy delete"},
+     * summary="Artist Payment Policy delete",
+     *  security={{"sanctum":{}}},
+     * description="Artist Payment Policy delete ",
+     * @OA\Parameter(
+     *          name="payment_policy_id",
+     *          description="Payment Policy Id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Payment Policy deleted successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
+
     public function deletePaymentPolicy($payment_policy_id)
     {
         try {
@@ -498,7 +674,7 @@ class ArtistController extends BaseController
         }
     }
 
-       /**
+    /**
      * @OA\Post(
      * path="/api/add-artist-cancellation-policy",
      * operationId="add-artist-cancellation-policy",
@@ -541,15 +717,20 @@ class ArtistController extends BaseController
 
         DB::beginTransaction();
         try {
-            $user = MakeupArtistCancellationPolicy::create([
-                'artist_id' => Auth::id(),
-                'cancellation_policy' => $request->cancellation_policy
-            ]);
-            if (!is_null($user)) {
-                DB::commit();
-                return $this->sendResponse($user, 'Your Cancellation policy update successfully.', 200);
+            $countCancellationPolicy = MakeupArtistCancellationPolicy::where('artist_id', Auth::id())->count();
+            if ($countCancellationPolicy <= 3) {
+                $user = MakeupArtistCancellationPolicy::create([
+                    'artist_id' => Auth::id(),
+                    'cancellation_policy' => $request->cancellation_policy
+                ]);
+                if (!is_null($user)) {
+                    DB::commit();
+                    return $this->sendResponse($user, 'Your Cancellation policy update successfully.', 200);
+                } else {
+                    return $this->sendError('Your cancellation policy update failed!', [], 400);
+                }
             } else {
-                return $this->sendError('Your cancellation policy update failed!', [], 400);
+                return $this->sendError('You can not add more than three policy', [], 400);
             }
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -557,6 +738,48 @@ class ArtistController extends BaseController
             return $this->sendError($th->getMessage(), [], 500);
         }
     }
+
+    /**
+     * @OA\Post(
+     * path="/api/edit-artist-cancellation-policy/{payment_cancellation_id}",
+     * operationId="edit-artist-Payment Cancellation",
+     * tags={"Edit Artist Payment Cancellation Policy"},
+     * summary="Edit Artist Payment Cancellation Policy",
+     * security={{"sanctum":{}}},
+     * description="Edit Artist Payment Cancellation Policy here",
+     *  @OA\Parameter(
+     *          name="payment_cancellation_id",
+     *          description="Payment Cancellation Id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+
+     *      @OA\RequestBody(
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *            mediaType="multipart/form-data",
+     *            @OA\Schema(
+     *               type="object",
+     *               required={"cancellation_policy"},
+     *                 @OA\Property(property="cancellation_policy", type="text",example="No Cancellation Policy"),
+     *              
+     *               
+     *            ),
+     *        ),
+     *    ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Your Payment Cancellation Policy update successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
 
     public function updateCancellationPolicy(Request $request, $payment_cancellation_id)
     {
@@ -587,6 +810,34 @@ class ArtistController extends BaseController
             return $this->sendError($th->getMessage(), [], 500);
         }
     }
+
+    /**
+     * @OA\Get(
+     * path="/api/delete-artist-cancellation-policy/{payment_cancellation_id}",
+     * operationId="Artist cancellation Policy delete",
+     * tags={"Artist Payment cancellation Policy delete"},
+     * summary="Artist Payment cancellation Policy delete",
+     *  security={{"sanctum":{}}},
+     * description="Artist Payment cancellation Policy delete ",
+     * @OA\Parameter(
+     *          name="payment_cancellation_id",
+     *          description="Payment cancellation Policy Id",
+     *          required=true,
+     *          example=1,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Payment cancellation Policy deleted successfully.",
+     *          @OA\JsonContent()
+     *       ),
+     *      @OA\Response(response=400, description="Bad request"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     * )
+     */
 
     public function deleteCancellationPolicy($payment_cancellation_id)
     {
